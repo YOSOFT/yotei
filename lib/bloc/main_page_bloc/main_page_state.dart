@@ -11,7 +11,14 @@ class MainPageInitial implements MainPageState{
   bool get stringify => false;
 
 }
+class MainPageLoading implements MainPageState {
+  @override
+  List<Object> get props => [];
 
+  @override
+  bool get stringify => false;
+
+}
 
 class AllBoard implements MainPageState{
   final List<Board> allBoard;

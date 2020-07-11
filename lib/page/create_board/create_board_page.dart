@@ -29,7 +29,7 @@ class _CreateBoardPageState extends State<CreateBoardPage> {
           if(state is ShowMessage){
             _showToast(state.message);
           }else if(state is Success){
-            Navigator.of(context).pop();
+            Navigator.of(context).pop(true);
           }
         },
         builder: (context, state){
@@ -107,10 +107,9 @@ class _CreateBoardPageState extends State<CreateBoardPage> {
                           icon: Icon(Icons.save),
                           onPressed: () {
                             var title = _titleController.text.toString().trim();
-                            var desc =
-                                _descriptionController.text.toString().trim();
+                            var desc = _descriptionController.text.toString().trim();
                             if (title.isEmpty || desc.isEmpty) {
-                              print("Title or description must not be empty");
+                              _showToast("Title or description must not be empty");
                             } else {
                               DateTime now = DateTime.now();
                               _createBoardBloc.add(

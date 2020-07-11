@@ -19,6 +19,7 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState>{
 
   Stream<MainPageState> _getAllBoards() async* {
     try{
+      yield MainPageLoading();
       List<Board> temp = await _boardRepository.getAllBoard();
       if(temp != null){
         boards.clear();

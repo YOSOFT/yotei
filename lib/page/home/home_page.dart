@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laplanche/bloc/main_page_bloc/main_page_bloc.dart';
+import 'package:laplanche/bloc/main_page_bloc/main_page_event.dart';
 import 'package:laplanche/page/board/board_page.dart';
 import 'package:laplanche/page/create_board/create_board_page.dart';
 import 'package:laplanche/page/home/allboard_component.dart';
@@ -16,6 +17,17 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final _pageController = PageController(initialPage: 0);
+  MainPageBloc _mainPageBloc;
+  @override
+  void initState() {
+    _mainPageBloc = MainPageBloc(BoardRepository());
+    _fetchBoard();
+    super.initState();
+  }
+
+  void _fetchBoard(){
+    _mainPageBloc.add(GetAll());
+  }
 
   @override
   void dispose() {
@@ -29,14 +41,17 @@ class _HomePageState extends State<HomePage> {
       body: Stack(
         children: <Widget>[
           BlocProvider(
-            create: (context) => MainPageBloc(BoardRepository()),
-            child: PageView(
-              controller: _pageController,
-              children: <Widget>[
-                AllBoardComponent(),
-                CategorizedComponent(),
-                RecentComponent()
-              ],
+            create: (context) => _mainPageBloc,
+            child: Container(
+              margin: EdgeInsets.only(bottom: 50),
+              child: PageView(
+                controller: _pageController,
+                children: <Widget>[
+                  AllBoardComponent(),
+                  CategorizedComponent(),
+                  RecentComponent()
+                ],
+              ),
             ),
           ),
           Align(
@@ -47,7 +62,16 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       IconButton(icon: Icon(Icons.add), onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => CreateBoardPage()));
+                        Navigator.push(context, 
+                        MaterialPageRoute(
+                          builder: (context) => CreateBoardPage()
+                          )
+                        ).then((value) {
+                          if(value != null){
+                            _mainPageBloc.add(GetAll());
+                          }
+                        }
+                        );
                       }),
                       IconButton(icon: Icon(Icons.search), onPressed: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => SearchPage()));
