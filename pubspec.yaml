@@ -33,9 +33,9 @@ dependencies:
   moor_ffi:
   path_provider:
   path:
-  mobx: ^1.2.1+1
-  flutter_mobx: ^1.1.0+1
-  freezed_annotation:
+  flutter_bloc:
+  equatable:
+  toast: ^0.1.5
 
 dev_dependencies:
   flutter_test:
@@ -43,8 +43,6 @@ dev_dependencies:
 
   moor_generator:
   build_runner:
-  mobx_codegen: ^1.1.0+1
-  freezed:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
