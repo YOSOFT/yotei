@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:laplanche/dao/boards_dao.dart';
+import 'package:laplanche/dao/category_dao.dart';
+import 'package:laplanche/model/board_category.dart';
 import 'package:laplanche/model/boards.dart';
 import 'package:laplanche/model/tags.dart';
 import 'package:laplanche/model/tag_boards.dart';
@@ -10,9 +12,9 @@ import 'package:path/path.dart' as p;
 
 part 'app_database.g.dart';
 
-
-
-@UseMoor(tables: [Boards, Tags, TagBoards], daos: [BoardsDao])
+@UseMoor(
+    tables: [Boards, Tags, TagBoards, BoardCategory],
+    daos: [BoardsDao, CategoryDao])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
@@ -22,16 +24,14 @@ class AppDatabase extends _$AppDatabase {
   int get schemaVersion => 1;
 
   static LazyDatabase _openConnection() {
-    if(_lazyDatabase == null){
+    if (_lazyDatabase == null) {
       _lazyDatabase = LazyDatabase(() async {
-          final dbFolder = await getApplicationDocumentsDirectory();
-          final file = File(p.join(dbFolder.path, 'yotei.sqlite'));
-          return VmDatabase(file);
+        final dbFolder = await getApplicationDocumentsDirectory();
+        final file = File(p.join(dbFolder.path, 'yotei.sqlite'));
+        return VmDatabase(file);
       });
       return _lazyDatabase;
     }
     return _lazyDatabase;
+  }
 }
-
-}
-

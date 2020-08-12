@@ -11,11 +11,13 @@ class Board extends DataClass implements Insertable<Board> {
   final int id;
   final String name;
   final String description;
+  final int category;
   final DateTime lastUpdated;
   Board(
       {@required this.id,
       @required this.name,
       @required this.description,
+      @required this.category,
       this.lastUpdated});
   factory Board.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
@@ -28,6 +30,8 @@ class Board extends DataClass implements Insertable<Board> {
       name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
       description: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}description']),
+      category:
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}category']),
       lastUpdated: dateTimeType
           .mapFromDatabaseResponse(data['${effectivePrefix}last_updated']),
     );
@@ -44,6 +48,9 @@ class Board extends DataClass implements Insertable<Board> {
     if (!nullToAbsent || description != null) {
       map['description'] = Variable<String>(description);
     }
+    if (!nullToAbsent || category != null) {
+      map['category'] = Variable<int>(category);
+    }
     if (!nullToAbsent || lastUpdated != null) {
       map['last_updated'] = Variable<DateTime>(lastUpdated);
     }
@@ -57,6 +64,9 @@ class Board extends DataClass implements Insertable<Board> {
       description: description == null && nullToAbsent
           ? const Value.absent()
           : Value(description),
+      category: category == null && nullToAbsent
+          ? const Value.absent()
+          : Value(category),
       lastUpdated: lastUpdated == null && nullToAbsent
           ? const Value.absent()
           : Value(lastUpdated),
@@ -70,6 +80,7 @@ class Board extends DataClass implements Insertable<Board> {
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       description: serializer.fromJson<String>(json['description']),
+      category: serializer.fromJson<int>(json['category']),
       lastUpdated: serializer.fromJson<DateTime>(json['lastUpdated']),
     );
   }
@@ -80,16 +91,22 @@ class Board extends DataClass implements Insertable<Board> {
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
       'description': serializer.toJson<String>(description),
+      'category': serializer.toJson<int>(category),
       'lastUpdated': serializer.toJson<DateTime>(lastUpdated),
     };
   }
 
   Board copyWith(
-          {int id, String name, String description, DateTime lastUpdated}) =>
+          {int id,
+          String name,
+          String description,
+          int category,
+          DateTime lastUpdated}) =>
       Board(
         id: id ?? this.id,
         name: name ?? this.name,
         description: description ?? this.description,
+        category: category ?? this.category,
         lastUpdated: lastUpdated ?? this.lastUpdated,
       );
   @override
@@ -98,14 +115,19 @@ class Board extends DataClass implements Insertable<Board> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('description: $description, ')
+          ..write('category: $category, ')
           ..write('lastUpdated: $lastUpdated')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(id.hashCode,
-      $mrjc(name.hashCode, $mrjc(description.hashCode, lastUpdated.hashCode))));
+  int get hashCode => $mrjf($mrjc(
+      id.hashCode,
+      $mrjc(
+          name.hashCode,
+          $mrjc(description.hashCode,
+              $mrjc(category.hashCode, lastUpdated.hashCode)))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -113,6 +135,7 @@ class Board extends DataClass implements Insertable<Board> {
           other.id == this.id &&
           other.name == this.name &&
           other.description == this.description &&
+          other.category == this.category &&
           other.lastUpdated == this.lastUpdated);
 }
 
@@ -120,30 +143,36 @@ class BoardsCompanion extends UpdateCompanion<Board> {
   final Value<int> id;
   final Value<String> name;
   final Value<String> description;
+  final Value<int> category;
   final Value<DateTime> lastUpdated;
   const BoardsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.description = const Value.absent(),
+    this.category = const Value.absent(),
     this.lastUpdated = const Value.absent(),
   });
   BoardsCompanion.insert({
     this.id = const Value.absent(),
     @required String name,
     @required String description,
+    @required int category,
     this.lastUpdated = const Value.absent(),
   })  : name = Value(name),
-        description = Value(description);
+        description = Value(description),
+        category = Value(category);
   static Insertable<Board> custom({
     Expression<int> id,
     Expression<String> name,
     Expression<String> description,
+    Expression<int> category,
     Expression<DateTime> lastUpdated,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (description != null) 'description': description,
+      if (category != null) 'category': category,
       if (lastUpdated != null) 'last_updated': lastUpdated,
     });
   }
@@ -152,11 +181,13 @@ class BoardsCompanion extends UpdateCompanion<Board> {
       {Value<int> id,
       Value<String> name,
       Value<String> description,
+      Value<int> category,
       Value<DateTime> lastUpdated}) {
     return BoardsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       description: description ?? this.description,
+      category: category ?? this.category,
       lastUpdated: lastUpdated ?? this.lastUpdated,
     );
   }
@@ -172,6 +203,9 @@ class BoardsCompanion extends UpdateCompanion<Board> {
     }
     if (description.present) {
       map['description'] = Variable<String>(description.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<int>(category.value);
     }
     if (lastUpdated.present) {
       map['last_updated'] = Variable<DateTime>(lastUpdated.value);
@@ -213,6 +247,18 @@ class $BoardsTable extends Boards with TableInfo<$BoardsTable, Board> {
         minTextLength: 1);
   }
 
+  final VerificationMeta _categoryMeta = const VerificationMeta('category');
+  GeneratedIntColumn _category;
+  @override
+  GeneratedIntColumn get category => _category ??= _constructCategory();
+  GeneratedIntColumn _constructCategory() {
+    return GeneratedIntColumn(
+      'category',
+      $tableName,
+      false,
+    );
+  }
+
   final VerificationMeta _lastUpdatedMeta =
       const VerificationMeta('lastUpdated');
   GeneratedDateTimeColumn _lastUpdated;
@@ -228,7 +274,8 @@ class $BoardsTable extends Boards with TableInfo<$BoardsTable, Board> {
   }
 
   @override
-  List<GeneratedColumn> get $columns => [id, name, description, lastUpdated];
+  List<GeneratedColumn> get $columns =>
+      [id, name, description, category, lastUpdated];
   @override
   $BoardsTable get asDslTable => this;
   @override
@@ -256,6 +303,12 @@ class $BoardsTable extends Boards with TableInfo<$BoardsTable, Board> {
               data['description'], _descriptionMeta));
     } else if (isInserting) {
       context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('category')) {
+      context.handle(_categoryMeta,
+          category.isAcceptableOrUnknown(data['category'], _categoryMeta));
+    } else if (isInserting) {
+      context.missing(_categoryMeta);
     }
     if (data.containsKey('last_updated')) {
       context.handle(
@@ -669,6 +722,184 @@ class $TagBoardsTable extends TagBoards
   }
 }
 
+class BoardCategoryData extends DataClass
+    implements Insertable<BoardCategoryData> {
+  final int id;
+  final String name;
+  BoardCategoryData({@required this.id, @required this.name});
+  factory BoardCategoryData.fromData(
+      Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final intType = db.typeSystem.forDartType<int>();
+    final stringType = db.typeSystem.forDartType<String>();
+    return BoardCategoryData(
+      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
+      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<int>(id);
+    }
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
+    }
+    return map;
+  }
+
+  BoardCategoryCompanion toCompanion(bool nullToAbsent) {
+    return BoardCategoryCompanion(
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+    );
+  }
+
+  factory BoardCategoryData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return BoardCategoryData(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+    };
+  }
+
+  BoardCategoryData copyWith({int id, String name}) => BoardCategoryData(
+        id: id ?? this.id,
+        name: name ?? this.name,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('BoardCategoryData(')
+          ..write('id: $id, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(id.hashCode, name.hashCode));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is BoardCategoryData &&
+          other.id == this.id &&
+          other.name == this.name);
+}
+
+class BoardCategoryCompanion extends UpdateCompanion<BoardCategoryData> {
+  final Value<int> id;
+  final Value<String> name;
+  const BoardCategoryCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+  });
+  BoardCategoryCompanion.insert({
+    this.id = const Value.absent(),
+    @required String name,
+  }) : name = Value(name);
+  static Insertable<BoardCategoryData> custom({
+    Expression<int> id,
+    Expression<String> name,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+    });
+  }
+
+  BoardCategoryCompanion copyWith({Value<int> id, Value<String> name}) {
+    return BoardCategoryCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    return map;
+  }
+}
+
+class $BoardCategoryTable extends BoardCategory
+    with TableInfo<$BoardCategoryTable, BoardCategoryData> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $BoardCategoryTable(this._db, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  GeneratedIntColumn _id;
+  @override
+  GeneratedIntColumn get id => _id ??= _constructId();
+  GeneratedIntColumn _constructId() {
+    return GeneratedIntColumn('id', $tableName, false,
+        hasAutoIncrement: true, declaredAsPrimaryKey: true);
+  }
+
+  final VerificationMeta _nameMeta = const VerificationMeta('name');
+  GeneratedTextColumn _name;
+  @override
+  GeneratedTextColumn get name => _name ??= _constructName();
+  GeneratedTextColumn _constructName() {
+    return GeneratedTextColumn('name', $tableName, false,
+        minTextLength: 1, maxTextLength: 255);
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [id, name];
+  @override
+  $BoardCategoryTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'board_category';
+  @override
+  final String actualTableName = 'board_category';
+  @override
+  VerificationContext validateIntegrity(Insertable<BoardCategoryData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name'], _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BoardCategoryData map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return BoardCategoryData.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $BoardCategoryTable createAlias(String alias) {
+    return $BoardCategoryTable(_db, alias);
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $BoardsTable _boards;
@@ -677,10 +908,17 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   $TagsTable get tags => _tags ??= $TagsTable(this);
   $TagBoardsTable _tagBoards;
   $TagBoardsTable get tagBoards => _tagBoards ??= $TagBoardsTable(this);
+  $BoardCategoryTable _boardCategory;
+  $BoardCategoryTable get boardCategory =>
+      _boardCategory ??= $BoardCategoryTable(this);
   BoardsDao _boardsDao;
   BoardsDao get boardsDao => _boardsDao ??= BoardsDao(this as AppDatabase);
+  CategoryDao _categoryDao;
+  CategoryDao get categoryDao =>
+      _categoryDao ??= CategoryDao(this as AppDatabase);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [boards, tags, tagBoards];
+  List<DatabaseSchemaEntity> get allSchemaEntities =>
+      [boards, tags, tagBoards, boardCategory];
 }
