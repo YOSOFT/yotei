@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laplanche/bloc/main_page_bloc/main_page_bloc.dart';
 import 'package:laplanche/bloc/main_page_bloc/main_page_state.dart';
-import 'package:laplanche/data/app_database.dart';
+import 'package:laplanche/model/board_with_category.dart';
 import 'package:toast/toast.dart';
 
 class AllBoardComponent extends StatefulWidget {
@@ -12,7 +12,7 @@ class AllBoardComponent extends StatefulWidget {
 
 class _AllBoardComponentState extends State<AllBoardComponent>
     with AutomaticKeepAliveClientMixin<AllBoardComponent> {
-  List<Board> _boards = List();
+  List<BoardWithCategory> _boards = List();
   MainPageBloc _mainPageBloc;
 
   @override
@@ -42,9 +42,9 @@ class _AllBoardComponentState extends State<AllBoardComponent>
             listener: (context, state) {
               if (state is ShowMessage) {
                 _showMessage(state.message);
-              } else if (state is AllBoard) {
+              } else if (state is AllBoardWithCategory) {
                 _boards.clear();
-                _boards.addAll(state.allBoard);
+                _boards.addAll(state.boardsWithCategory);
               }
             },
             builder: (contex, state) {
@@ -78,7 +78,7 @@ class _AllBoardComponentState extends State<AllBoardComponent>
           physics: ClampingScrollPhysics(),
           itemCount: _boards.length,
           itemBuilder: (context, index) {
-            Board board = _boards[index];
+            BoardWithCategory board = _boards[index];
             return Padding(
               padding: const EdgeInsets.only(left: 8.0, right: 8),
               child: Column(
@@ -92,14 +92,14 @@ class _AllBoardComponentState extends State<AllBoardComponent>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                            "${board.name}",
+                            "${board.board.name}",
                             style: TextStyle(
                                 fontFamily: "Assistant",
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            "${board.description}",
+                            "${board.board.description}",
                             overflow: TextOverflow.ellipsis,
                             maxLines: 3,
                             style: TextStyle(
@@ -107,7 +107,7 @@ class _AllBoardComponentState extends State<AllBoardComponent>
                             ),
                           ),
                           Text(
-                            "${board.category}",
+                            "${board.boardCategoryData.name}",
                             style: TextStyle(fontFamily: "Assistant"),
                           ),
                           Align(

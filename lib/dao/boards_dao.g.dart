@@ -8,4 +8,5 @@ part of 'boards_dao.dart';
 
 mixin _$BoardsDaoMixin on DatabaseAccessor<AppDatabase> {
   $BoardsTable get boards => attachedDatabase.boards;
+  $BoardCategoryTable get boardCategory => attachedDatabase.boardCategory;
 }
