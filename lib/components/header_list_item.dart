@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:laplanche/page/home/mock_data.dart';
+import 'package:laplanche/utils/board_section.dart';
 
 class HeaderListItem extends StatelessWidget {
-  final List<ExampleSection> sectionList;
+  final List<BoardSection> sectionList;
   final int sectionIndex;
 
   HeaderListItem(this.sectionList, this.sectionIndex);
 
   @override
   Widget build(BuildContext context) {
-    ExampleSection section = sectionList[sectionIndex];
+    BoardSection section = sectionList[sectionIndex];
     return InkWell(
         child: Container(
-            color: Colors.lightBlue,
             height: 48,
             padding: EdgeInsets.only(left: 20),
             alignment: Alignment.centerLeft,
             child: Text(
-              section.header,
+              section.title,
               style: TextStyle(color: Colors.white),
             )),
         onTap: () {

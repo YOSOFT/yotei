@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laplanche/bloc/main_page_bloc/main_page_bloc.dart';
+import 'package:laplanche/bloc/main_page_bloc/main_page_event.dart';
 import 'package:laplanche/bloc/main_page_bloc/main_page_state.dart';
 import 'package:laplanche/components/board_list_item.dart';
 import 'package:laplanche/model/board_with_category.dart';
@@ -20,6 +21,16 @@ class _AllBoardComponentState extends State<AllBoardComponent>
   void initState() {
     _mainPageBloc = BlocProvider.of<MainPageBloc>(context);
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    _fetchBoard();
+    super.didChangeDependencies();
+  }
+
+  void _fetchBoard() {
+    _mainPageBloc.add(GetAll());
   }
 
   @override

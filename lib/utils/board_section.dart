@@ -1,13 +1,10 @@
 import 'package:laplanche/model/board_with_category.dart';
 import 'package:sticky_and_expandable_list/sticky_and_expandable_list.dart';
 
-class BoardSection implements ExpandableListSection {
+class BoardSection implements ExpandableListSection<BoardWithCategory> {
   bool isExpanded;
-  List<BoardWithCategory> boardWithCategory;
+  List<BoardWithCategory> boardWithCategory = List();
   String title;
-
-  @override
-  List<BoardWithCategory> getItems() => boardWithCategory;
 
   @override
   bool isSectionExpanded() => isExpanded;
@@ -15,5 +12,10 @@ class BoardSection implements ExpandableListSection {
   @override
   void setSectionExpanded(bool expanded) {
     this.isExpanded = expanded;
+  }
+
+  @override
+  List<BoardWithCategory> getItems() {
+    return boardWithCategory;
   }
 }

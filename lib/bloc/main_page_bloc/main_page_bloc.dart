@@ -13,6 +13,8 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
   Stream<MainPageState> mapEventToState(MainPageEvent event) async* {
     if (event is GetAll) {
       yield* _getAllBoards();
+    } else if (event is GetAllByCategory) {
+      yield* _getCategorizedBoards();
     }
   }
 
@@ -24,6 +26,30 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
       yield AllBoardWithCategory(temp);
     } catch (e) {
       print(e);
+      yield ShowMessage("Something went wrong $e");
+    }
+  }
+
+  Stream<MainPageState> _getCategorizedBoards() async* {
+    try {
+      yield MainPageLoading();
+      final List<BoardWithCategory> _boards =
+          await _boardRepository.getAllBoardWithCategory();
+      var _filtered = _boards.fold<Map<String, List<BoardWithCategory>>>({},
+          (boardWithCategoryMap, currentBoardWithCategory) {
+        if (boardWithCategoryMap[
+                currentBoardWithCategory.boardCategoryData.name] ==
+            null) {
+          boardWithCategoryMap[currentBoardWithCategory
+              .boardCategoryData.name] = <BoardWithCategory>[];
+        }
+        boardWithCategoryMap[currentBoardWithCategory.boardCategoryData.name]
+            .add(currentBoardWithCategory);
+        return boardWithCategoryMap;
+      });
+      yield GetCategorizedBoards(_filtered);
+    } catch (e) {
+      print("Exception $e");
       yield ShowMessage("Something went wrong $e");
     }
   }

@@ -18,14 +18,15 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final _pageController = PageController(initialPage: 0);
   MainPageBloc _mainPageBloc;
+
   @override
   void initState() {
     _mainPageBloc = MainPageBloc(BoardRepository());
-    _fetchBoard();
     super.initState();
   }
 
-  void _fetchBoard(){
+  void _fetchBoard() {
+    _mainPageBloc.add(GetAllByCategory());
     _mainPageBloc.add(GetAll());
   }
 
@@ -40,8 +41,10 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: Stack(
         children: <Widget>[
-          BlocProvider(
-            create: (context) => _mainPageBloc,
+          MultiBlocProvider(
+            providers: [
+              BlocProvider(create: (context) => _mainPageBloc),
+            ],
             child: Container(
               margin: EdgeInsets.only(bottom: 50),
               child: PageView(
@@ -58,30 +61,41 @@ class _HomePageState extends State<HomePage> {
             alignment: Alignment.bottomCenter,
             child: Material(
                 child: Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      IconButton(icon: Icon(Icons.add), onPressed: () {
-                        Navigator.push(context, 
-                        MaterialPageRoute(
-                          builder: (context) => CreateBoardPage()
-                          )
-                        ).then((value) {
-                          if(value != null){
-                            _mainPageBloc.add(GetAll());
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  IconButton(
+                      icon: Icon(Icons.add),
+                      onPressed: () {
+                        Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => CreateBoardPage()))
+                            .then((value) {
+                          if (value != null) {
+                            _fetchBoard();
                           }
-                        }
-                        );
+                        });
                       }),
-                      IconButton(icon: Icon(Icons.search), onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => SearchPage()));
+                  IconButton(
+                      icon: Icon(Icons.search),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SearchPage()));
                       }),
-                      IconButton(icon: Icon(Icons.more_horiz), onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => BoardPage()));
+                  IconButton(
+                      icon: Icon(Icons.more_horiz),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => BoardPage()));
                       }),
-                    ],
-                  ),
-                )),
+                ],
+              ),
+            )),
           )
         ],
       ),

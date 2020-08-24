@@ -55,3 +55,15 @@ class AllBoardWithCategory implements MainPageState {
   @override
   bool get stringify => false;
 }
+
+class GetCategorizedBoards implements MainPageState {
+  final Map<String, List<BoardWithCategory>> boards;
+
+  GetCategorizedBoards(this.boards);
+
+  @override
+  List<Object> get props => [boards];
+
+  @override
+  bool get stringify => false;
+}
