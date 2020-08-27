@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:laplanche/model/board_with_category.dart';
+import 'package:laplanche/page/board/my_board_page.dart';
 
 class BoardListItem extends StatelessWidget {
   final List<BoardWithCategory> _boards;
@@ -19,7 +20,10 @@ class BoardListItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 InkWell(
-                  onTap: () => print("llll"),
+                  onTap: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (context) {
+                    return MyBoardPage(boardWithCategory: _boards[index]);
+                  })),
                   child: Padding(
                     padding: EdgeInsets.all(16),
                     child: Column(

@@ -5,6 +5,7 @@ import 'package:laplanche/bloc/main_page_bloc/main_page_event.dart';
 import 'package:laplanche/bloc/main_page_bloc/main_page_state.dart';
 import 'package:laplanche/components/header_list_item.dart';
 import 'package:laplanche/model/board_with_category.dart';
+import 'package:laplanche/page/board/my_board_page.dart';
 import 'package:laplanche/utils/board_section.dart';
 import 'package:sticky_and_expandable_list/sticky_and_expandable_list.dart';
 import 'package:toast/toast.dart';
@@ -88,7 +89,10 @@ class _CategorizedComponentState extends State<CategorizedComponent>
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: <Widget>[
                             InkWell(
-                              onTap: () => print("llll"),
+                              onTap: () => Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) {
+                                return MyBoardPage(boardWithCategory: board);
+                              })),
                               child: Padding(
                                 padding: EdgeInsets.all(16),
                                 child: Column(
