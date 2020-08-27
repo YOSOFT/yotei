@@ -5,6 +5,7 @@ import 'package:laplanche/bloc/create_board_bloc/create_board_event.dart';
 import 'package:laplanche/bloc/create_board_bloc/create_board_state.dart';
 import 'package:laplanche/data/app_database.dart';
 import 'package:laplanche/repository/board_repository.dart';
+import 'package:laplanche/utils/injector.dart';
 import 'package:toast/toast.dart';
 
 class CreateBoardPage extends StatefulWidget {
@@ -16,7 +17,8 @@ class _CreateBoardPageState extends State<CreateBoardPage> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _categoryController = TextEditingController();
-  CreateBoardBloc _createBoardBloc = CreateBoardBloc(BoardRepository());
+  CreateBoardBloc _createBoardBloc =
+      CreateBoardBloc(BoardRepository(locator<AppDatabase>()));
 
   void _showToast(message) => Toast.show(message, context);
 

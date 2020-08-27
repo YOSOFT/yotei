@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laplanche/bloc/main_page_bloc/main_page_bloc.dart';
 import 'package:laplanche/bloc/main_page_bloc/main_page_event.dart';
+import 'package:laplanche/data/app_database.dart';
 import 'package:laplanche/page/board/board_page.dart';
 import 'package:laplanche/page/create_board/create_board_page.dart';
 import 'package:laplanche/page/home/allboard_component.dart';
 import 'package:laplanche/page/home/categorized_component.dart';
-import 'package:laplanche/page/home/recent_component.dart';
 import 'package:laplanche/page/search/search_page.dart';
 import 'package:laplanche/repository/board_repository.dart';
+import 'package:laplanche/utils/injector.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -21,7 +22,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    _mainPageBloc = MainPageBloc(BoardRepository());
+    _mainPageBloc = MainPageBloc(BoardRepository(locator<AppDatabase>()));
     super.initState();
   }
 
@@ -52,7 +53,6 @@ class _HomePageState extends State<HomePage> {
                 children: <Widget>[
                   AllBoardComponent(),
                   CategorizedComponent(),
-                  RecentComponent()
                 ],
               ),
             ),

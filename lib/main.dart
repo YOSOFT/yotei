@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:laplanche/page/home/home_page.dart';
+import 'package:laplanche/utils/injector.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  setupGetIt();
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -13,9 +17,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark
-      ),
+      darkTheme: ThemeData(brightness: Brightness.dark),
       home: HomePage(),
     );
   }

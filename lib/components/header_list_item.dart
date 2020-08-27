@@ -12,6 +12,7 @@ class HeaderListItem extends StatelessWidget {
     BoardSection section = sectionList[sectionIndex];
     return InkWell(
         child: Container(
+            color: Theme.of(context).colorScheme.background,
             height: 48,
             padding: EdgeInsets.only(left: 20),
             alignment: Alignment.centerLeft,

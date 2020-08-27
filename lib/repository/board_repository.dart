@@ -2,21 +2,25 @@ import 'package:laplanche/data/app_database.dart';
 import 'package:laplanche/model/board_with_category.dart';
 
 class BoardRepository {
-  final categoryDao = AppDatabase().categoryDao;
-  final boardDao = AppDatabase().boardsDao;
+  final AppDatabase _appDb;
+  BoardRepository(this._appDb);
 
   Future<List<Board>> getAllBoard() {
-    return boardDao.getAllBoards();
+    return _appDb.boardsDao.getAllBoards();
   }
 
   Future<List<BoardWithCategory>> getAllBoardWithCategory() {
-    return boardDao.getAllBoardWithCategory();
+    return _appDb.boardsDao.getAllBoardWithCategory();
+  }
+
+  Future<List<PanelData>> getAllPanels(int boardId) {
+    return _appDb.panelDao.getAllPanels(boardId);
   }
 
   Future<int> create(Board board, String categoryName) async {
-    int categoryId = await categoryDao.insertCategory(categoryName);
+    int categoryId = await _appDb.categoryDao.insertCategory(categoryName);
     board = board.copyWith(category: categoryId);
-    var result = await boardDao.insertBoard(board);
+    var result = await _appDb.boardsDao.insertBoard(board);
     return result;
   }
 }

@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:laplanche/dao/boards_dao.dart';
 import 'package:laplanche/dao/category_dao.dart';
+import 'package:laplanche/dao/panel_dao.dart';
 import 'package:laplanche/model/board_category.dart';
 import 'package:laplanche/model/boards.dart';
-import 'package:laplanche/model/tags.dart';
-import 'package:laplanche/model/tag_boards.dart';
+import 'package:laplanche/model/panel.dart';
 import 'package:moor/moor.dart';
 import 'package:moor_ffi/moor_ffi.dart';
 import 'package:path_provider/path_provider.dart';
@@ -13,8 +13,8 @@ import 'package:path/path.dart' as p;
 part 'app_database.g.dart';
 
 @UseMoor(
-    tables: [Boards, Tags, TagBoards, BoardCategory],
-    daos: [BoardsDao, CategoryDao])
+    tables: [Boards, BoardCategory, Panel],
+    daos: [BoardsDao, CategoryDao, PanelDao])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
