@@ -54,8 +54,7 @@ class _CategorizedComponentState extends State<CategorizedComponent>
           if (state is ShowMessage) {
             _showMessage(state.message);
           } else if (state is GetCategorizedBoards) {
-            _boardWithCategory.clear();
-            _boardWithCategory.addAll(state.boards);
+            _boardWithCategory = state.boards;
             _processDataToSection();
           }
         },
