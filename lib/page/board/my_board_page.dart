@@ -1,5 +1,16 @@
+import 'package:boardview/board_list.dart';
+import 'package:boardview/boardview.dart';
+import 'package:boardview/boardview_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:laplanche/bloc/board_bloc/board_bloc.dart';
+import 'package:laplanche/bloc/board_bloc/board_event.dart';
+import 'package:laplanche/bloc/board_bloc/board_state.dart';
+import 'package:laplanche/components/panel_header.dart';
+import 'package:laplanche/data/app_database.dart';
 import 'package:laplanche/model/board_with_category.dart';
+import 'package:laplanche/repository/board_repository.dart';
+import 'package:laplanche/utils/injector.dart';
 import 'package:toast/toast.dart';
 
 class MyBoardPage extends StatefulWidget {
@@ -11,6 +22,24 @@ class MyBoardPage extends StatefulWidget {
 }
 
 class _MyBoardPageState extends State<MyBoardPage> {
+  BoardBloc _boardBloc;
+  List<PanelData> panels = [];
+  BoardViewController _boardViewController = new BoardViewController();
+  List<BoardList> panelWidgets = <BoardList>[];
+
+  @override
+  void initState() {
+    _boardBloc = BoardBloc(BoardRepository(locator<AppDatabase>()));
+    _fetchPanels();
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    _fetchPanels();
+    super.didChangeDependencies();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,6 +61,22 @@ class _MyBoardPageState extends State<MyBoardPage> {
           )
         ],
       ),
+      body: BlocConsumer<BoardBloc, BoardState>(
+          bloc: _boardBloc,
+          listener: (context, state) {
+            if (state is BoardStatePanelsLoaded) {
+              panels.clear();
+              panels.addAll(state.panels);
+            } else if (state is BoardStateShowToast) {
+              _showToast(state.message);
+            }
+          },
+          builder: (context, state) {
+            return BoardView(
+              boardViewController: _boardViewController,
+              lists: [],
+            );
+          }),
     );
   }
 
@@ -51,7 +96,17 @@ class _MyBoardPageState extends State<MyBoardPage> {
             ),
             actions: <Widget>[
               FlatButton(
-                  onPressed: () => Navigator.pop(context), child: Text("Save"))
+                  onPressed: () {
+                    PanelData panelData = PanelData(
+                        id: null,
+                        name: "Lorem ipsum",
+                        description: "Lorem ipsum dolor sit amet consectetur",
+                        boardId: this.widget.boardWithCategory.board.id,
+                        order: 1);
+                    _boardBloc.add(BoardEventCreatePanel(panelData));
+                    Navigator.pop(context);
+                  },
+                  child: Text("Save"))
             ],
           );
         });
@@ -59,6 +114,18 @@ class _MyBoardPageState extends State<MyBoardPage> {
 
   _onSelectedOptionMenu(String menuItem) {
     _showToast(menuItem);
+  }
+
+  _fetchPanels() {
+    _boardBloc
+        .add(BoardEventGetAllPanels(this.widget.boardWithCategory.board.id));
+  }
+
+  _createPanelsHeader() {
+    List headers = <PanelHeaderComponent>[];
+    panels.forEach((p) {
+      headers.add(PanelHeaderComponent(p.name, []));
+    });
   }
 
   _showToast(String message) => Toast.show(message, context);

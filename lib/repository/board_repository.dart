@@ -23,4 +23,9 @@ class BoardRepository {
     var result = await _appDb.boardsDao.insertBoard(board);
     return result;
   }
+
+  Future<int> createPanel(PanelData panelData) async {
+    var result = await _appDb.panelDao.insertPanel(panelData);
+    return result;
+  }
 }

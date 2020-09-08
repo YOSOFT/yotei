@@ -12,5 +12,10 @@ class PanelDao extends DatabaseAccessor<AppDatabase> with _$PanelDaoMixin {
     return (select(panel)..where((tbl) => tbl.boardId.equals(boardId))).get();
   }
 
+  Future insertPanel(PanelData panelData) {
+    var s = into(panel).insert(panelData);
+    return s;
+  }
+
   Future deletePanel(PanelData panelData) => delete(panel).delete(panelData);
 }

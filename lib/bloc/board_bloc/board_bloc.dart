@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laplanche/bloc/board_bloc/board_event.dart';
 import 'package:laplanche/bloc/board_bloc/board_state.dart';
-import 'package:laplanche/model/panel.dart';
+import 'package:laplanche/data/app_database.dart';
 import 'package:laplanche/repository/board_repository.dart';
 
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
@@ -13,7 +13,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     if (event is BoardEventGetAllPanels) {
       yield* _getAllPanels(event.boardId);
     } else if (event is BoardEventCreatePanel) {
-      yield* _createPanel(event.panel);
+      yield* _createPanel(event.panelData);
     }
   }
 
@@ -27,8 +27,12 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     }
   }
 
-  Stream<BoardState> _createPanel(Panel panel) async* {
-    try {} catch (e) {
+  Stream<BoardState> _createPanel(PanelData panelData) async* {
+    try {
+      yield BoardStateLoading();
+      await _boardRepository.createPanel(panelData);
+      yield BoardStateShowToast("Sukses insert");
+    } catch (e) {
       print("Something went wrong $e");
       yield BoardStateShowToast("There is something wrong..");
     }

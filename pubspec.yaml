@@ -36,7 +36,7 @@ dependencies:
   flutter_bloc:
   equatable:
   toast: ^0.1.5
-  sticky_and_expandable_list: ^0.2.1
+  sticky_and_expandable_list: ^0.2.3
   get_it: ^4.0.4
 
 dev_dependencies:
