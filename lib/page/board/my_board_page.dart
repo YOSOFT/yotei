@@ -1,12 +1,15 @@
+import 'package:boardview/board_item.dart';
 import 'package:boardview/board_list.dart';
 import 'package:boardview/boardview.dart';
 import 'package:boardview/boardview_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laplanche/bloc/board_bloc/board_bloc.dart';
 import 'package:laplanche/bloc/board_bloc/board_event.dart';
 import 'package:laplanche/bloc/board_bloc/board_state.dart';
 import 'package:laplanche/components/panel_header.dart';
+import 'package:laplanche/components/penal_item.dart';
 import 'package:laplanche/data/app_database.dart';
 import 'package:laplanche/model/board_with_category.dart';
 import 'package:laplanche/repository/board_repository.dart';
@@ -23,9 +26,10 @@ class MyBoardPage extends StatefulWidget {
 
 class _MyBoardPageState extends State<MyBoardPage> {
   BoardBloc _boardBloc;
-  List<PanelData> panels = [];
+  List<PanelData> panelsFromDb = List();
   BoardViewController _boardViewController = new BoardViewController();
   List<BoardList> panelWidgets = <BoardList>[];
+  var brighthness = SchedulerBinding.instance.window.platformBrightness;
 
   @override
   void initState() {
@@ -65,16 +69,17 @@ class _MyBoardPageState extends State<MyBoardPage> {
           bloc: _boardBloc,
           listener: (context, state) {
             if (state is BoardStatePanelsLoaded) {
-              panels.clear();
-              panels.addAll(state.panels);
+              panelsFromDb.clear();
+              panelsFromDb.addAll(state.panels);
+              _moveFromDbToList();
             } else if (state is BoardStateShowToast) {
               _showToast(state.message);
             }
           },
           builder: (context, state) {
             return BoardView(
+              lists: panelWidgets,
               boardViewController: _boardViewController,
-              lists: [],
             );
           }),
     );
@@ -121,11 +126,55 @@ class _MyBoardPageState extends State<MyBoardPage> {
         .add(BoardEventGetAllPanels(this.widget.boardWithCategory.board.id));
   }
 
-  _createPanelsHeader() {
-    List headers = <PanelHeaderComponent>[];
-    panels.forEach((p) {
-      headers.add(PanelHeaderComponent(p.name, []));
+  _moveFromDbToList() {
+    List<PanelHeader> headers = List();
+    panelsFromDb
+        .forEach((element) => headers.add(PanelHeader(element.name, [])));
+
+    int i = 0;
+    panelWidgets.clear();
+    headers.forEach((element) {
+      panelWidgets.add(BoardList(
+        index: i,
+        items: buildBoardItems(element.getPanelItems),
+        header: generateHeader(element),
+        backgroundColor: Colors.transparent,
+      ));
     });
+  }
+
+  List<Widget> generateHeader(PanelHeader header) {
+    return [
+      Expanded(
+          child: Padding(
+              padding: EdgeInsets.only(top: 16, left: 16, right: 16),
+              child: Text(
+                header.title,
+                style: TextStyle(fontSize: 48, fontFamily: "Assistant"),
+              )))
+    ];
+  }
+
+  List<BoardItem> buildBoardItems(List<PanelItem> panelItems) {
+    List<BoardItem> items = List();
+    panelItems.forEach((element) {
+      items.add(BoardItem(
+        item: _generateItemWidget(element),
+      ));
+    });
+    return items;
+  }
+
+  Widget _generateItemWidget(PanelItem item) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(
+          item.itemTitle,
+          style: TextStyle(fontSize: 39, color: Colors.blue),
+        ),
+      ),
+    );
   }
 
   _showToast(String message) => Toast.show(message, context);

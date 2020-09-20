@@ -26,14 +26,6 @@ class _BoardPageState extends State<BoardPage> {
     List<BoardList> _lists = List<BoardList>();
     for (int i = 0; i < _listData.length; i++) {
       _lists.add(_createBoardList(_listData[i]));
-      // _lists[i].items.add(BoardItem(
-      //       item: Container(
-      //           margin: EdgeInsets.all(16),
-      //           child: Text(
-      //             "Item-" + i.toString(),
-      //             style: TextStyle(fontSize: 28, fontFamily: "Assistant"),
-      //           )),
-      //     ));
     }
     return Scaffold(
       body: BoardView(

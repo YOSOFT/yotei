@@ -1,9 +1,16 @@
-import 'package:flutter/material.dart';
-import 'package:laplanche/components/penal_item_component.dart';
+import 'package:laplanche/components/penal_item.dart';
 
-class PanelHeaderComponent {
+class PanelHeader {
   String title;
-  List<PanelItemComponent> panelItems = [];
+  List<PanelItem> panelItems = [];
 
-  PanelHeaderComponent(this.title, this.panelItems);
+  PanelHeader(this.title, this.panelItems);
+
+  List<PanelItem> get getPanelItems {
+    return panelItems;
+  }
+
+  set setPanelItems(List<PanelItem> items) {
+    this.panelItems = items;
+  }
 }
