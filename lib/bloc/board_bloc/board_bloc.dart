@@ -30,7 +30,15 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   Stream<BoardState> _createPanel(PanelData panelData) async* {
     try {
       yield BoardStateLoading();
+      var currentPanels =
+          await _boardRepository.getAllPanels(panelData.boardId);
+      currentPanels.forEach((element) {
+        print(element);
+      });
+      int lastIndex = currentPanels.isEmpty ? 1 : currentPanels.length;
+      panelData = panelData.copyWith(order: lastIndex);
       await _boardRepository.createPanel(panelData);
+      yield BoardStateRefresh();
       yield BoardStateShowToast("Sukses insert");
     } catch (e) {
       print("Something went wrong $e");

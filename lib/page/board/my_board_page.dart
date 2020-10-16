@@ -25,6 +25,8 @@ class MyBoardPage extends StatefulWidget {
 }
 
 class _MyBoardPageState extends State<MyBoardPage> {
+  TextEditingController _panelTitleController = TextEditingController();
+  TextEditingController _panelDescriptionController = TextEditingController();
   BoardBloc _boardBloc;
   List<PanelData> panelsFromDb = List();
   BoardViewController _boardViewController = new BoardViewController();
@@ -42,6 +44,13 @@ class _MyBoardPageState extends State<MyBoardPage> {
   void didChangeDependencies() {
     _fetchPanels();
     super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    _panelTitleController.dispose();
+    _panelDescriptionController.dispose();
+    super.dispose();
   }
 
   @override
@@ -74,6 +83,8 @@ class _MyBoardPageState extends State<MyBoardPage> {
               _moveFromDbToList();
             } else if (state is BoardStateShowToast) {
               _showToast(state.message);
+            } else if (state is BoardStateRefresh) {
+              _fetchPanels();
             }
           },
           builder: (context, state) {
@@ -94,22 +105,32 @@ class _MyBoardPageState extends State<MyBoardPage> {
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                TextField(decoration: InputDecoration(hintText: "Panel title")),
                 TextField(
+                  decoration: InputDecoration(hintText: "Panel title"),
+                  controller: _panelTitleController,
+                ),
+                TextField(
+                    controller: _panelDescriptionController,
                     decoration: InputDecoration(hintText: "Panel description"))
               ],
             ),
             actions: <Widget>[
               FlatButton(
                   onPressed: () {
-                    PanelData panelData = PanelData(
-                        id: null,
-                        name: "Lorem ipsum",
-                        description: "Lorem ipsum dolor sit amet consectetur",
-                        boardId: this.widget.boardWithCategory.board.id,
-                        order: 1);
-                    _boardBloc.add(BoardEventCreatePanel(panelData));
-                    Navigator.pop(context);
+                    if (_panelTitleController.text.trim() == '' ||
+                        _panelDescriptionController.text.trim() == '') {
+                      _showToast("Please fill panel title and descrition");
+                    } else {
+                      PanelData panelData = PanelData(
+                          id: null,
+                          name: _panelTitleController.text.trim(),
+                          description: _panelDescriptionController.text.trim(),
+                          boardId: this.widget.boardWithCategory.board.id,
+                          order: 1);
+                      _boardBloc.add(BoardEventCreatePanel(panelData));
+                      _resetPanelController();
+                      Navigator.pop(context);
+                    }
                   },
                   child: Text("Save"))
             ],
@@ -119,6 +140,11 @@ class _MyBoardPageState extends State<MyBoardPage> {
 
   _onSelectedOptionMenu(String menuItem) {
     _showToast(menuItem);
+  }
+
+  _resetPanelController() {
+    _panelTitleController.clear();
+    _panelDescriptionController.clear();
   }
 
   _fetchPanels() {

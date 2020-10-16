@@ -41,3 +41,11 @@ class BoardStateShowToast implements BoardState {
   @override
   bool get stringify => false;
 }
+
+class BoardStateRefresh implements BoardState {
+  @override
+  List<Object> get props => [];
+
+  @override
+  bool get stringify => false;
+}
