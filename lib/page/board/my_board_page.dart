@@ -2,6 +2,7 @@ import 'package:boardview/board_item.dart';
 import 'package:boardview/board_list.dart';
 import 'package:boardview/boardview.dart';
 import 'package:boardview/boardview_controller.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -96,6 +97,45 @@ class _MyBoardPageState extends State<MyBoardPage> {
     );
   }
 
+  _displayItemDialog(context) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Add or edit"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                TextField(
+                  decoration: InputDecoration(hintText: "Title"),
+                ),
+                TextField(decoration: InputDecoration(hintText: "Description"))
+              ],
+            ),
+            actions: <Widget>[
+              FlatButton(
+                  onPressed: () {
+                    if (_panelTitleController.text.trim() == '' ||
+                        _panelDescriptionController.text.trim() == '') {
+                      _showToast("Please fill panel title and descrition");
+                    } else {
+                      PanelData panelData = PanelData(
+                          id: null,
+                          name: _panelTitleController.text.trim(),
+                          description: _panelDescriptionController.text.trim(),
+                          boardId: this.widget.boardWithCategory.board.id,
+                          order: 1);
+                      _boardBloc.add(BoardEventCreatePanel(panelData));
+                      _resetPanelController();
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: Text("Save"))
+            ],
+          );
+        });
+  }
+
   _displayDialog(context) {
     return showDialog(
         context: context,
@@ -172,12 +212,28 @@ class _MyBoardPageState extends State<MyBoardPage> {
   List<Widget> generateHeader(PanelHeader header) {
     return [
       Expanded(
-          child: Padding(
-              padding: EdgeInsets.only(top: 16, left: 16, right: 16),
-              child: Text(
-                header.title,
-                style: TextStyle(fontSize: 48, fontFamily: "Assistant"),
-              )))
+          child: Card(
+        child: Padding(
+            padding: EdgeInsets.only(left: 16, right: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  header.title,
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: "Assistant"),
+                ),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: IconButton(
+                      icon: Icon(Icons.add),
+                      onPressed: () => {_displayItemDialog(context)}),
+                )
+              ],
+            )),
+      ))
     ];
   }
 
