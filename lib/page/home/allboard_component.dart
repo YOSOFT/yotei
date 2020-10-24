@@ -50,7 +50,7 @@ class _AllBoardComponentState extends State<AllBoardComponent>
                       fontFamily: "Assistant")),
             ),
             BlocConsumer<MainPageBloc, MainPageState>(
-              bloc: _mainPageBloc,
+              cubit: _mainPageBloc,
               listener: (context, state) {
                 if (state is ShowMessage) {
                   _showMessage(state.message);

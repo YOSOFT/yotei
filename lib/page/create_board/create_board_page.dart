@@ -26,7 +26,7 @@ class _CreateBoardPageState extends State<CreateBoardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocConsumer<CreateBoardBloc, CreateBoardState>(
-          bloc: _createBoardBloc,
+          cubit: _createBoardBloc,
           listener: (context, state) {
             if (state is ShowMessage) {
               _showToast(state.message);

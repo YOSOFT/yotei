@@ -8,4 +8,5 @@ part of 'panel_dao.dart';
 
 mixin _$PanelDaoMixin on DatabaseAccessor<AppDatabase> {
   $PanelTable get panel => attachedDatabase.panel;
+  $PanelItemTable get panelItem => attachedDatabase.panelItem;
 }

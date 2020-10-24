@@ -49,7 +49,7 @@ class _CategorizedComponentState extends State<CategorizedComponent>
     super.build(context);
     return SafeArea(
       child: BlocConsumer<MainPageBloc, MainPageState>(
-        bloc: _mainPageBloc,
+        cubit: _mainPageBloc,
         listener: (context, state) {
           if (state is ShowMessage) {
             _showMessage(state.message);

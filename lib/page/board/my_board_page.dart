@@ -13,6 +13,7 @@ import 'package:laplanche/components/panel_header.dart';
 import 'package:laplanche/components/penal_item.dart';
 import 'package:laplanche/data/app_database.dart';
 import 'package:laplanche/model/board_with_category.dart';
+import 'package:laplanche/model/panel_with_items.dart';
 import 'package:laplanche/repository/board_repository.dart';
 import 'package:laplanche/utils/injector.dart';
 import 'package:toast/toast.dart';
@@ -28,8 +29,10 @@ class MyBoardPage extends StatefulWidget {
 class _MyBoardPageState extends State<MyBoardPage> {
   TextEditingController _panelTitleController = TextEditingController();
   TextEditingController _panelDescriptionController = TextEditingController();
+  TextEditingController _panelItemTitleController = TextEditingController();
+  TextEditingController _panelItemDescController = TextEditingController();
   BoardBloc _boardBloc;
-  List<PanelData> panelsFromDb = List();
+  List<PanelWithItems> panelWithItemsFromDb = [];
   BoardViewController _boardViewController = new BoardViewController();
   List<BoardList> panelWidgets = <BoardList>[];
   var brighthness = SchedulerBinding.instance.window.platformBrightness;
@@ -51,6 +54,8 @@ class _MyBoardPageState extends State<MyBoardPage> {
   void dispose() {
     _panelTitleController.dispose();
     _panelDescriptionController.dispose();
+    _panelItemTitleController.dispose();
+    _panelItemDescController.dispose();
     super.dispose();
   }
 
@@ -76,16 +81,16 @@ class _MyBoardPageState extends State<MyBoardPage> {
         ],
       ),
       body: BlocConsumer<BoardBloc, BoardState>(
-          bloc: _boardBloc,
+          cubit: _boardBloc,
           listener: (context, state) {
-            if (state is BoardStatePanelsLoaded) {
-              panelsFromDb.clear();
-              panelsFromDb.addAll(state.panels);
-              _moveFromDbToList();
-            } else if (state is BoardStateShowToast) {
+            if (state is BoardStateShowToast) {
               _showToast(state.message);
             } else if (state is BoardStateRefresh) {
               _fetchPanels();
+            } else if (state is BoardStatePanelWithItems) {
+              panelWithItemsFromDb.clear();
+              panelWithItemsFromDb.addAll(state.panelWithItems);
+              _moveFromDbToListAlt();
             }
           },
           builder: (context, state) {
@@ -97,36 +102,39 @@ class _MyBoardPageState extends State<MyBoardPage> {
     );
   }
 
-  _displayItemDialog(context) {
+  _displayItemDialog(context, panelId) {
     return showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text("Add or edit"),
+            title: Text("Add panel item"),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 TextField(
+                  controller: _panelItemTitleController,
                   decoration: InputDecoration(hintText: "Title"),
                 ),
-                TextField(decoration: InputDecoration(hintText: "Description"))
+                TextField(
+                    controller: _panelItemDescController,
+                    decoration: InputDecoration(hintText: "Description"))
               ],
             ),
             actions: <Widget>[
               FlatButton(
                   onPressed: () {
-                    if (_panelTitleController.text.trim() == '' ||
-                        _panelDescriptionController.text.trim() == '') {
-                      _showToast("Please fill panel title and descrition");
-                    } else {
-                      PanelData panelData = PanelData(
+                    if (validatePanelItem()) {
+                      String name = _panelItemTitleController.text;
+                      String desc = _panelItemDescController.text;
+                      PanelItemData panelItemData = PanelItemData(
                           id: null,
-                          name: _panelTitleController.text.trim(),
-                          description: _panelDescriptionController.text.trim(),
-                          boardId: this.widget.boardWithCategory.board.id,
-                          order: 1);
-                      _boardBloc.add(BoardEventCreatePanel(panelData));
-                      _resetPanelController();
+                          name: name,
+                          description: desc,
+                          panelId: panelId,
+                          order: null);
+                      _boardBloc.add(
+                          BoardEventCreatePanelItem(panelId, panelItemData));
+                      _resetPanelItemController();
                       Navigator.pop(context);
                     }
                   },
@@ -187,25 +195,34 @@ class _MyBoardPageState extends State<MyBoardPage> {
     _panelDescriptionController.clear();
   }
 
-  _fetchPanels() {
-    _boardBloc
-        .add(BoardEventGetAllPanels(this.widget.boardWithCategory.board.id));
+  _resetPanelItemController() {
+    _panelItemTitleController.clear();
+    _panelItemDescController.clear();
   }
 
-  _moveFromDbToList() {
+  _fetchPanels() {
+    _boardBloc.add(
+        BoardEventGetPanelWithItems(this.widget.boardWithCategory.board.id));
+  }
+
+  _moveFromDbToListAlt() {
     List<PanelHeader> headers = List();
-    panelsFromDb
-        .forEach((element) => headers.add(PanelHeader(element.name, [])));
+    panelWithItemsFromDb.forEach((element) => headers.add(PanelHeader(
+        element.panelData,
+        element.panelData.name,
+        [],
+        element.panelItemDatas)));
 
     int i = 0;
     panelWidgets.clear();
     headers.forEach((element) {
       panelWidgets.add(BoardList(
         index: i,
-        items: buildBoardItems(element.getPanelItems),
+        items: buildBoardItems(element.panelItemsAlt),
         header: generateHeader(element),
         backgroundColor: Colors.transparent,
       ));
+      i++;
     });
   }
 
@@ -214,22 +231,42 @@ class _MyBoardPageState extends State<MyBoardPage> {
       Expanded(
           child: Card(
         child: Padding(
-            padding: EdgeInsets.only(left: 16, right: 8),
+            padding: EdgeInsets.only(left: 16, right: 8, top: 8, bottom: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  header.title,
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: "Assistant"),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        header.panelData.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.fade,
+                        style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "Assistant"),
+                      ),
+                      Text(
+                        header.panelData.description,
+                        maxLines: 3,
+                      )
+                    ],
+                  ),
                 ),
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: IconButton(
-                      icon: Icon(Icons.add),
-                      onPressed: () => {_displayItemDialog(context)}),
+                Row(
+                  children: [
+                    IconButton(
+                        icon: Icon(Icons.add),
+                        onPressed: () =>
+                            {_displayItemDialog(context, header.panelData.id)}),
+                    IconButton(
+                      icon: Icon(Icons.more_horiz),
+                      onPressed: () =>
+                          _displayItemDialog(context, header.panelData.id),
+                    )
+                  ],
                 )
               ],
             )),
@@ -237,7 +274,7 @@ class _MyBoardPageState extends State<MyBoardPage> {
     ];
   }
 
-  List<BoardItem> buildBoardItems(List<PanelItem> panelItems) {
+  List<BoardItem> buildBoardItems(List<PanelItemData> panelItems) {
     List<BoardItem> items = List();
     panelItems.forEach((element) {
       items.add(BoardItem(
@@ -247,16 +284,45 @@ class _MyBoardPageState extends State<MyBoardPage> {
     return items;
   }
 
-  Widget _generateItemWidget(PanelItem item) {
+  Widget _generateItemWidget(PanelItemData item) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Text(
-          item.itemTitle,
-          style: TextStyle(fontSize: 39, color: Colors.blue),
+        padding: const EdgeInsets.only(left: 16.0, right: 0, top: 8, bottom: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(item.name,
+                      style: TextStyle(fontSize: 18),
+                      overflow: TextOverflow.fade,
+                      maxLines: 2),
+                  Text(item.description,
+                      style: TextStyle(fontSize: 14),
+                      overflow: TextOverflow.fade,
+                      maxLines: 4)
+                ],
+              ),
+            ),
+            IconButton(icon: Icon(Icons.more_vert), onPressed: () => {})
+          ],
         ),
       ),
     );
+  }
+
+  bool validatePanelItem() {
+    if (_panelItemTitleController.text.toString().trim() == '') {
+      _showToast("Please fill panel item title");
+      return false;
+    }
+    if (_panelItemDescController.text.toString().trim() == '') {
+      _showToast("Please fill panel item description");
+      return false;
+    }
+    return true;
   }
 
   _showToast(String message) => Toast.show(message, context);

@@ -14,6 +14,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       yield* _getAllPanels(event.boardId);
     } else if (event is BoardEventCreatePanel) {
       yield* _createPanel(event.panelData);
+    } else if (event is BoardEventCreatePanelItem) {
+      yield* _createPanelItem(event.panelId, event.panelItemData);
+    } else if (event is BoardEventGetPanelWithItems) {
+      yield* _getPanelWithItems(event.boardId);
     }
   }
 
@@ -35,7 +39,9 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       currentPanels.forEach((element) {
         print(element);
       });
-      int lastIndex = currentPanels.isEmpty ? 1 : currentPanels.length;
+      int lastIndex = currentPanels.isEmpty
+          ? 1
+          : currentPanels[currentPanels.length - 1].order + 1;
       panelData = panelData.copyWith(order: lastIndex);
       await _boardRepository.createPanel(panelData);
       yield BoardStateRefresh();
@@ -43,6 +49,41 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     } catch (e) {
       print("Something went wrong $e");
       yield BoardStateShowToast("There is something wrong..");
+    }
+  }
+
+  Stream<BoardState> _getPanelWithItems(int boardId) async* {
+    try {
+      var panels = await _boardRepository.getAllPanelWithItems(boardId);
+      print("atta halilintar");
+      print(panels);
+      panels.forEach((element) {
+        print(element.panelData.name);
+        print(element.panelItemDatas.length);
+      });
+      yield BoardStatePanelWithItems(panels);
+    } catch (e) {
+      print("Something went wrong $e");
+      yield BoardStateShowToast("There is something wrong..");
+    }
+  }
+
+  Stream<BoardState> _createPanelItem(
+      int panelId, PanelItemData panelItemData) async* {
+    try {
+      yield BoardStateLoading();
+      List<PanelItemData> currentPanelItems =
+          await _boardRepository.getAllPanelItems(panelId);
+      int order = currentPanelItems.isEmpty
+          ? 1
+          : currentPanelItems[currentPanelItems.length - 1].order + 1;
+      PanelItemData updatedPanelItem = panelItemData.copyWith(order: order);
+      await _boardRepository.createPanelItem(updatedPanelItem);
+      yield BoardStateRefresh();
+      yield BoardStateShowToast("Item created");
+    } catch (e) {
+      print("Exception on createPanelItem $e");
+      yield BoardStateShowToast("Error occured...");
     }
   }
 }

@@ -24,3 +24,28 @@ class BoardEventCreatePanel implements BoardEvent {
   @override
   bool get stringify => false;
 }
+
+class BoardEventCreatePanelItem implements BoardEvent {
+  final int panelId;
+  final PanelItemData panelItemData;
+
+  BoardEventCreatePanelItem(this.panelId, this.panelItemData);
+
+  @override
+  List<Object> get props => [panelId, panelItemData];
+
+  @override
+  bool get stringify => false;
+}
+
+class BoardEventGetPanelWithItems implements BoardEvent {
+  final int boardId;
+
+  BoardEventGetPanelWithItems(this.boardId);
+
+  @override
+  List<Object> get props => [];
+
+  @override
+  bool get stringify => false;
+}
