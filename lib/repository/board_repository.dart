@@ -42,4 +42,12 @@ class BoardRepository {
     var result = await _appDb.panelDao.insertPanelItem(panelItemData);
     return result;
   }
+
+  Future<bool> updatePanelPosition(List<PanelData> panelDatas) async {
+    for (int i = 0; i < panelDatas.length; i++) {
+      panelDatas[i].copyWith(order: i);
+      await _appDb.panelDao.updatePanelPosition(panelDatas[i]);
+    }
+    return true;
+  }
 }

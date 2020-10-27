@@ -35,6 +35,7 @@ class _MyBoardPageState extends State<MyBoardPage> {
   List<PanelWithItems> panelWithItemsFromDb = [];
   BoardViewController _boardViewController = new BoardViewController();
   List<BoardList> panelWidgets = <BoardList>[];
+  List<PanelHeader> headers = List();
   var brighthness = SchedulerBinding.instance.window.platformBrightness;
 
   @override
@@ -206,18 +207,24 @@ class _MyBoardPageState extends State<MyBoardPage> {
   }
 
   _moveFromDbToListAlt() {
-    List<PanelHeader> headers = List();
+    headers.clear();
     panelWithItemsFromDb.forEach((element) => headers.add(PanelHeader(
         element.panelData,
         element.panelData.name,
         [],
         element.panelItemDatas)));
+    generateWidget();
+  }
 
+  generateWidget() {
     int i = 0;
     panelWidgets.clear();
     headers.forEach((element) {
       panelWidgets.add(BoardList(
         index: i,
+        onDropList: (int listIndex, int oldListIndex) {
+          whenPanelIsDropped(element, listIndex, oldListIndex);
+        },
         items: buildBoardItems(element.panelItemsAlt),
         header: generateHeader(element),
         backgroundColor: Colors.transparent,
@@ -323,6 +330,26 @@ class _MyBoardPageState extends State<MyBoardPage> {
       return false;
     }
     return true;
+  }
+
+  whenPanelIsDropped(PanelHeader panelHeader, int listIndex, int oldListIndex) {
+    if (listIndex != oldListIndex) {
+      PanelHeader selectedPanel = headers[oldListIndex];
+      headers.removeAt(oldListIndex);
+      headers.insert(listIndex, selectedPanel);
+      // generateWidget();
+      _updatePanelPositionToDatabase();
+    }
+  }
+
+  _updatePanelPositionToDatabase() {
+    _boardBloc.add(BoardEventSavePanelPosition(headers.map((e) => e.panelData),
+        this.widget.boardWithCategory.board.id));
+  }
+
+  _updatePanelOrder(PanelData panelData, int newIdx, int oldIdx) {
+    print("hello");
+    _showToast("list index $newIdx, new is $oldIdx");
   }
 
   _showToast(String message) => Toast.show(message, context);

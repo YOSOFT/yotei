@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:laplanche/components/panel_header.dart';
 import 'package:laplanche/data/app_database.dart';
 
 abstract class BoardEvent extends Equatable {}
@@ -45,6 +46,19 @@ class BoardEventGetPanelWithItems implements BoardEvent {
 
   @override
   List<Object> get props => [];
+
+  @override
+  bool get stringify => false;
+}
+
+class BoardEventSavePanelPosition implements BoardEvent {
+  final List<PanelData> panelDatas;
+  final int boardId;
+
+  BoardEventSavePanelPosition(this.panelDatas, this.boardId);
+
+  @override
+  List<Object> get props => [panelDatas, boardId];
 
   @override
   bool get stringify => false;

@@ -18,6 +18,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       yield* _createPanelItem(event.panelId, event.panelItemData);
     } else if (event is BoardEventGetPanelWithItems) {
       yield* _getPanelWithItems(event.boardId);
+    } else if (event is BoardEventSavePanelPosition) {
+      yield* _savePanelPositionToDatabase(event.panelDatas, event.boardId);
     }
   }
 
@@ -36,9 +38,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       yield BoardStateLoading();
       var currentPanels =
           await _boardRepository.getAllPanels(panelData.boardId);
-      currentPanels.forEach((element) {
-        print(element);
-      });
       int lastIndex = currentPanels.isEmpty
           ? 1
           : currentPanels[currentPanels.length - 1].order + 1;
@@ -55,12 +54,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   Stream<BoardState> _getPanelWithItems(int boardId) async* {
     try {
       var panels = await _boardRepository.getAllPanelWithItems(boardId);
-      print("atta halilintar");
-      print(panels);
-      panels.forEach((element) {
-        print(element.panelData.name);
-        print(element.panelItemDatas.length);
-      });
       yield BoardStatePanelWithItems(panels);
     } catch (e) {
       print("Something went wrong $e");
@@ -83,6 +76,19 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       yield BoardStateShowToast("Item created");
     } catch (e) {
       print("Exception on createPanelItem $e");
+      yield BoardStateShowToast("Error occured...");
+    }
+  }
+
+  Stream<BoardState> _savePanelPositionToDatabase(
+      List<PanelData> panelDatas, int boardId) async* {
+    try {
+      yield BoardStateLoading();
+      _boardRepository.updatePanelPosition(panelDatas);
+      var panels = await _boardRepository.getAllPanelWithItems(boardId);
+      yield BoardStatePanelWithItems(panels);
+    } catch (e) {
+      print("Exception on save panel position $e");
       yield BoardStateShowToast("Error occured...");
     }
   }

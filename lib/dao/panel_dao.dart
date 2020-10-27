@@ -25,8 +25,6 @@ class PanelDao extends DatabaseAccessor<AppDatabase> with _$PanelDaoMixin {
           ..where((tbl) => tbl.boardId.equals(boardId)))
         .get();
 
-    print("check");
-    print(panels);
     for (var p in panels) {
       List<PanelItemData> items = await (select(panelItem)
             ..where((tbl) => tbl.panelId.equals(p.id)))
@@ -46,5 +44,13 @@ class PanelDao extends DatabaseAccessor<AppDatabase> with _$PanelDaoMixin {
   Future insertPanelItem(PanelItemData panelItemData) {
     var data = into(panelItem).insert(panelItemData);
     return data;
+  }
+
+  Future updatePanelPosition(PanelData pD) {
+    return (update(panel)..where((t) => t.id.equals(pD.id))).write(
+      PanelCompanion(
+        order: Value(pD.order),
+      ),
+    );
   }
 }
