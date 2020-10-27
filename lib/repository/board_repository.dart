@@ -50,9 +50,13 @@ class BoardRepository {
   Future<bool> updatePanelPosition(List<PanelData> panelDatas) async {
     for (int i = 0; i < panelDatas.length; i++) {
       panelDatas[i] = panelDatas[i].copyWith(order: i);
-      var x = await _appDb.panelDao.updatePanelPosition(panelDatas[i]);
-      print(x);
+      await _appDb.panelDao.updatePanelPosition(panelDatas[i]);
     }
     return true;
+  }
+
+  Future<int> deletePanel(int panelId) async {
+    var result = await _appDb.panelDao.deletePanel(panelId);
+    return result;
   }
 }

@@ -62,3 +62,16 @@ class BoardEventSavePanelPosition implements BoardEvent {
   @override
   bool get stringify => false;
 }
+
+class BoardEventDeletePanel implements BoardEvent {
+  final int panelId;
+  final List<PanelData> panelDatas;
+
+  BoardEventDeletePanel(this.panelId, this.panelDatas);
+
+  @override
+  List<Object> get props => [panelId, panelDatas];
+
+  @override
+  bool get stringify => false;
+}

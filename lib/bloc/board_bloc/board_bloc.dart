@@ -20,6 +20,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       yield* _getPanelWithItems(event.boardId);
     } else if (event is BoardEventSavePanelPosition) {
       yield* _savePanelPositionToDatabase(event.panelDatas, event.boardId);
+    } else if (event is BoardEventDeletePanel) {
+      yield* _deletePanel(event.panelId, event.panelDatas);
     }
   }
 
@@ -89,6 +91,22 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       yield BoardStatePanelWithItems(panels);
     } catch (e) {
       print("Exception on save panel position $e");
+      yield BoardStateShowToast("Error occured...");
+    }
+  }
+
+  Stream<BoardState> _deletePanel(
+      int panelId, List<PanelData> panelDatas) async* {
+    try {
+      yield BoardStateLoading();
+      int boardId = panelDatas[0].boardId;
+      print("board id " + boardId.toString());
+      await _boardRepository.deletePanel(panelId);
+      await _boardRepository.updatePanelPosition(panelDatas);
+      var panels = await _boardRepository.getAllPanelWithItems(boardId);
+      yield BoardStatePanelWithItems(panels);
+    } catch (e) {
+      print("Exception on delete panel $e");
       yield BoardStateShowToast("Error occured...");
     }
   }

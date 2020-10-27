@@ -266,14 +266,9 @@ class _MyBoardPageState extends State<MyBoardPage> {
                 Row(
                   children: [
                     IconButton(
-                        icon: Icon(Icons.add),
+                        icon: Icon(Icons.more_horiz),
                         onPressed: () =>
-                            {_displayItemDialog(context, header.panelData.id)}),
-                    IconButton(
-                      icon: Icon(Icons.more_horiz),
-                      onPressed: () =>
-                          _displayItemDialog(context, header.panelData.id),
-                    )
+                            _showMenu(context, header.panelData.id))
                   ],
                 )
               ],
@@ -338,18 +333,58 @@ class _MyBoardPageState extends State<MyBoardPage> {
       PanelHeader selectedPanel = headers[oldListIndex];
       headers.removeAt(oldListIndex);
       headers.insert(listIndex, selectedPanel);
-      // generateWidget();
       _updatePanelPositionToDatabase();
     }
   }
 
   _updatePanelPositionToDatabase() {
     List<PanelData> temps = headers.map((e) => e.panelData).toList();
-    temps.forEach((element) {
-      print(element.name);
-    });
     _boardBloc.add(BoardEventSavePanelPosition(
         temps, this.widget.boardWithCategory.board.id));
+  }
+
+  _deletePanel(int panelId) {
+    PanelHeader selectedPanel =
+        headers.singleWhere((element) => element.panelData.id == panelId);
+    print(selectedPanel);
+    headers.remove(selectedPanel);
+    _boardBloc.add(BoardEventDeletePanel(
+        panelId, headers.map((e) => e.panelData).toList()));
+  }
+
+  _showMenu(context, int panelId) {
+    showCupertinoModalPopup(
+        context: context,
+        builder: (BuildContext context) => CupertinoActionSheet(
+              cancelButton: CupertinoActionSheetAction(
+                child: Text("Cancel"),
+                onPressed: () => Navigator.pop(context),
+              ),
+              actions: <Widget>[
+                CupertinoActionSheetAction(
+                  child: Text("Create new item"),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _displayItemDialog(context, panelId);
+                  },
+                ),
+                CupertinoActionSheetAction(
+                  child: Text("Edit this panel"),
+                  onPressed: () {
+                    print("Edit this panel");
+                    Navigator.pop(context);
+                  },
+                ),
+                CupertinoActionSheetAction(
+                  child: Text("Delete this panel",
+                      style: TextStyle(color: Colors.red)),
+                  onPressed: () {
+                    _deletePanel(panelId);
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ));
   }
 
   _showToast(String message) => Toast.show(message, context);
