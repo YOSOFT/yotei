@@ -47,10 +47,11 @@ class PanelDao extends DatabaseAccessor<AppDatabase> with _$PanelDaoMixin {
   }
 
   Future updatePanelPosition(PanelData pD) {
-    return (update(panel)..where((t) => t.id.equals(pD.id))).write(
+    var result = (update(panel)..where((t) => t.id.equals(pD.id))).write(
       PanelCompanion(
         order: Value(pD.order),
       ),
     );
+    return result;
   }
 }

@@ -10,7 +10,6 @@ import 'package:laplanche/bloc/board_bloc/board_bloc.dart';
 import 'package:laplanche/bloc/board_bloc/board_event.dart';
 import 'package:laplanche/bloc/board_bloc/board_state.dart';
 import 'package:laplanche/components/panel_header.dart';
-import 'package:laplanche/components/penal_item.dart';
 import 'package:laplanche/data/app_database.dart';
 import 'package:laplanche/model/board_with_category.dart';
 import 'package:laplanche/model/panel_with_items.dart';
@@ -247,7 +246,9 @@ class _MyBoardPageState extends State<MyBoardPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        header.panelData.name,
+                        header.panelData.name +
+                            "" +
+                            header.panelData.order.toString(),
                         maxLines: 1,
                         overflow: TextOverflow.fade,
                         style: TextStyle(
@@ -343,13 +344,12 @@ class _MyBoardPageState extends State<MyBoardPage> {
   }
 
   _updatePanelPositionToDatabase() {
-    _boardBloc.add(BoardEventSavePanelPosition(headers.map((e) => e.panelData),
-        this.widget.boardWithCategory.board.id));
-  }
-
-  _updatePanelOrder(PanelData panelData, int newIdx, int oldIdx) {
-    print("hello");
-    _showToast("list index $newIdx, new is $oldIdx");
+    List<PanelData> temps = headers.map((e) => e.panelData).toList();
+    temps.forEach((element) {
+      print(element.name);
+    });
+    _boardBloc.add(BoardEventSavePanelPosition(
+        temps, this.widget.boardWithCategory.board.id));
   }
 
   _showToast(String message) => Toast.show(message, context);

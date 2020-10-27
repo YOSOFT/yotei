@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:laplanche/components/panel_header.dart';
 import 'package:laplanche/data/app_database.dart';
 
 abstract class BoardEvent extends Equatable {}

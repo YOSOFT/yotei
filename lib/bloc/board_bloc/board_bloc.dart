@@ -37,10 +37,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     try {
       yield BoardStateLoading();
       var currentPanels =
-          await _boardRepository.getAllPanels(panelData.boardId);
+          await _boardRepository.getAllPanelWithItems(panelData.boardId);
       int lastIndex = currentPanels.isEmpty
           ? 1
-          : currentPanels[currentPanels.length - 1].order + 1;
+          : currentPanels[currentPanels.length - 1].panelData.order + 1;
       panelData = panelData.copyWith(order: lastIndex);
       await _boardRepository.createPanel(panelData);
       yield BoardStateRefresh();
@@ -84,7 +84,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       List<PanelData> panelDatas, int boardId) async* {
     try {
       yield BoardStateLoading();
-      _boardRepository.updatePanelPosition(panelDatas);
+      await _boardRepository.updatePanelPosition(panelDatas);
       var panels = await _boardRepository.getAllPanelWithItems(boardId);
       yield BoardStatePanelWithItems(panels);
     } catch (e) {

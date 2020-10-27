@@ -22,8 +22,12 @@ class BoardRepository {
     return _appDb.panelDao.getAllPanelItems(panelId);
   }
 
-  Future<List<PanelWithItems>> getAllPanelWithItems(int boardId) {
-    return _appDb.panelDao.getAllPanelsWithItems(boardId);
+  Future<List<PanelWithItems>> getAllPanelWithItems(int boardId) async {
+    List<PanelWithItems> panelWithCategories =
+        await _appDb.panelDao.getAllPanelsWithItems(boardId);
+    panelWithCategories
+        .sort((a, b) => a.panelData.order.compareTo(b.panelData.order));
+    return panelWithCategories;
   }
 
   Future<int> create(Board board, String categoryName) async {
@@ -45,8 +49,9 @@ class BoardRepository {
 
   Future<bool> updatePanelPosition(List<PanelData> panelDatas) async {
     for (int i = 0; i < panelDatas.length; i++) {
-      panelDatas[i].copyWith(order: i);
-      await _appDb.panelDao.updatePanelPosition(panelDatas[i]);
+      panelDatas[i] = panelDatas[i].copyWith(order: i);
+      var x = await _appDb.panelDao.updatePanelPosition(panelDatas[i]);
+      print(x);
     }
     return true;
   }
