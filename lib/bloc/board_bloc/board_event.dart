@@ -75,3 +75,48 @@ class BoardEventDeletePanel implements BoardEvent {
   @override
   bool get stringify => false;
 }
+
+class BoardEventDeletePanelItem implements BoardEvent {
+  final int boardId;
+  final int panelItemId;
+  final List<PanelItemData> panelItemsToOrder;
+
+  BoardEventDeletePanelItem(
+      this.boardId, this.panelItemId, this.panelItemsToOrder);
+
+  @override
+  List<Object> get props => [boardId, panelItemId, panelItemsToOrder];
+
+  @override
+  bool get stringify => false;
+}
+
+class BoardEventUpdatePanelItemPosition implements BoardEvent {
+  final List<PanelItemData> panelItemDatas;
+  final int panelId;
+  final int boardId;
+
+  BoardEventUpdatePanelItemPosition(
+      this.panelItemDatas, this.panelId, this.boardId);
+
+  @override
+  List<Object> get props => [panelItemDatas, panelId, boardId];
+
+  @override
+  bool get stringify => false;
+}
+
+class BoardEventUpdatePanelItemPositionAlt implements BoardEvent {
+  final List<PanelItemData> oldItemDatas;
+  final List<PanelItemData> insertedItemDatas;
+  final int boardId;
+
+  BoardEventUpdatePanelItemPositionAlt(
+      this.oldItemDatas, this.insertedItemDatas, this.boardId);
+
+  @override
+  List<Object> get props => [oldItemDatas, insertedItemDatas, boardId];
+
+  @override
+  bool get stringify => false;
+}

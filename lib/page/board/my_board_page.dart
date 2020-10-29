@@ -224,7 +224,7 @@ class _MyBoardPageState extends State<MyBoardPage> {
         onDropList: (int listIndex, int oldListIndex) {
           whenPanelIsDropped(element, listIndex, oldListIndex);
         },
-        items: buildBoardItems(element.panelItemsAlt),
+        items: buildBoardItems(element),
         header: generateHeader(element),
         backgroundColor: Colors.transparent,
       ));
@@ -277,14 +277,42 @@ class _MyBoardPageState extends State<MyBoardPage> {
     ];
   }
 
-  List<BoardItem> buildBoardItems(List<PanelItemData> panelItems) {
+  List<BoardItem> buildBoardItems(PanelHeader panelHeader) {
     List<BoardItem> items = List();
-    panelItems.forEach((element) {
+    panelHeader.panelItemsAlt.forEach((element) {
       items.add(BoardItem(
+        onDropItem: (int listIndex, int itemIndex, int oldListIndex,
+            int oldItemIndex, BoardItemState state) {
+          _whenItemIsDropped(listIndex, itemIndex, oldListIndex, oldItemIndex,
+              state, element, panelHeader.panelItemsAlt);
+        },
         item: _generateItemWidget(element),
       ));
     });
     return items;
+  }
+
+  _whenItemIsDropped(
+      int listIndex,
+      int itemIndex,
+      int oldListIndex,
+      int oldItemIndex,
+      BoardItemState state,
+      PanelItemData panelItemData,
+      List<PanelItemData> panelDatas) {
+    var old = headers[oldListIndex].panelItemsAlt;
+    old.removeAt(oldItemIndex);
+    var temp = headers[listIndex].panelItemsAlt;
+    int panelId = headers[listIndex].panelData.id;
+    PanelItemData pid = panelItemData.copyWith(panelId: panelId);
+    temp.insert(itemIndex, pid);
+    _updatePanelItemToDatabaseAlt(old, temp);
+  }
+
+  _updatePanelItemToDatabaseAlt(List<PanelItemData> oldPanelItems,
+      List<PanelItemData> insertedPanelItems) {
+    _boardBloc.add(BoardEventUpdatePanelItemPositionAlt(oldPanelItems,
+        insertedPanelItems, this.widget.boardWithCategory.board.id));
   }
 
   Widget _generateItemWidget(PanelItemData item) {
@@ -298,7 +326,7 @@ class _MyBoardPageState extends State<MyBoardPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(item.name,
+                  Text(item.name + " [" + item.order.toString() + "]",
                       style: TextStyle(fontSize: 18),
                       overflow: TextOverflow.fade,
                       maxLines: 2),
@@ -309,10 +337,41 @@ class _MyBoardPageState extends State<MyBoardPage> {
                 ],
               ),
             ),
-            IconButton(icon: Icon(Icons.more_vert), onPressed: () => {})
+            IconButton(
+                icon: Icon(Icons.more_vert),
+                onPressed: () => {_askDeletePanelItem(item)})
           ],
         ),
       ),
+    );
+  }
+
+  _askDeletePanelItem(PanelItemData item) {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('AlertDialog Title'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('This is a demo alert dialog.'),
+                Text('Would you like to approve of this message?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Approve'),
+              onPressed: () {
+                _deletePanelItem(item);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -343,10 +402,21 @@ class _MyBoardPageState extends State<MyBoardPage> {
         temps, this.widget.boardWithCategory.board.id));
   }
 
+  _deletePanelItem(PanelItemData panelItemData) {
+    print(panelItemData.name);
+    List<PanelItemData> panelItemsToOrder = headers
+        .singleWhere((element) => element.panelData.id == panelItemData.panelId)
+        .panelItemsAlt;
+    panelItemsToOrder.remove(panelItemData);
+    _boardBloc.add(BoardEventDeletePanelItem(
+        this.widget.boardWithCategory.board.id,
+        panelItemData.id,
+        panelItemsToOrder));
+  }
+
   _deletePanel(int panelId) {
     PanelHeader selectedPanel =
         headers.singleWhere((element) => element.panelData.id == panelId);
-    print(selectedPanel);
     headers.remove(selectedPanel);
     _boardBloc.add(BoardEventDeletePanel(
         panelId, headers.map((e) => e.panelData).toList()));

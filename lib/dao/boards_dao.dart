@@ -42,6 +42,11 @@ class BoardsDao extends DatabaseAccessor<AppDatabase> with _$BoardsDaoMixin {
     }).get();
   }
 
+  Future<List<Board>> getAllBoardByCategoryId(int categoryId) {
+    return (select(boards)..where((tbl) => tbl.category.equals(categoryId)))
+        .get();
+  }
+
   Future updateboard(Board b) => update(boards).replace(b);
   Future deleteBoard(Board b) => delete(boards).delete(b);
 }

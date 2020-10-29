@@ -31,5 +31,12 @@ class CategoryDao extends DatabaseAccessor<AppDatabase>
 
   Future updateCategory(BoardCategoryData c) =>
       update(boardCategory).replace(c);
+
+  Future deleteCategoryById(int categoryId) {
+    var res =
+        (delete(boardCategory)..where((tbl) => tbl.id.equals(categoryId))).go();
+    return res;
+  }
+
   Future deleteCategory(BoardCategoryData c) => delete(boardCategory).delete(c);
 }

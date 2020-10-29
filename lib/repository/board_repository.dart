@@ -55,8 +55,36 @@ class BoardRepository {
     return true;
   }
 
+  Future<bool> updatePanelItemPosition(
+      List<PanelItemData> panelItemDatas) async {
+    try {
+      for (int i = 0; i < panelItemDatas.length; i++) {
+        panelItemDatas[i] = panelItemDatas[i].copyWith(order: i);
+        await _appDb.panelDao.updatePanelItemPosition(panelItemDatas[i]);
+      }
+      return true;
+    } catch (e) {
+      print("Exception in repo update panel item position $e");
+      return false;
+    }
+  }
+
   Future<int> deletePanel(int panelId) async {
     var result = await _appDb.panelDao.deletePanel(panelId);
     return result;
+  }
+
+  Future<int> deletePanelItem(int panelItemId) async {
+    var result = await _appDb.panelDao.deletePanelItem(panelItemId);
+    return result;
+  }
+
+  Future<int> deleteCategoryIfNotUsed(int categoryId) async {
+    List<Board> boardsWithCurrentCategory =
+        await _appDb.boardsDao.getAllBoardByCategoryId(categoryId);
+    if (boardsWithCurrentCategory.isEmpty) {
+      return await _appDb.categoryDao.deleteCategoryById(categoryId);
+    }
+    return 1;
   }
 }
