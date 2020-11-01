@@ -120,3 +120,15 @@ class BoardEventUpdatePanelItemPositionAlt implements BoardEvent {
   @override
   bool get stringify => false;
 }
+
+class BoardEventUpdatePanelValue implements BoardEvent {
+  final PanelData panelData;
+
+  BoardEventUpdatePanelValue(this.panelData);
+
+  @override
+  List<Object> get props => [panelData];
+
+  @override
+  bool get stringify => false;
+}

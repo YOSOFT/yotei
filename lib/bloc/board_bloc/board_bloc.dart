@@ -31,6 +31,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     } else if (event is BoardEventDeletePanelItem) {
       yield* _deletePanelItem(
           event.boardId, event.panelItemId, event.panelItemsToOrder);
+    } else if (event is BoardEventUpdatePanelValue) {
+      yield* _updatePanelValue(event.panelData);
     }
   }
 
@@ -158,6 +160,19 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       yield BoardStatePanelWithItems(panels);
     } catch (e) {
       print("Exception in deletePanelItem $e");
+      yield BoardStateShowToast("Error occured");
+    }
+  }
+
+  Stream<BoardState> _updatePanelValue(PanelData panelData) async* {
+    try {
+      yield BoardStateLoading();
+      await _boardRepository.updatePanelValue(panelData);
+      var panels =
+          await _boardRepository.getAllPanelWithItems(panelData.boardId);
+      yield BoardStatePanelWithItems(panels);
+    } catch (e) {
+      print("Exceptionn in updatePanelValue $e");
       yield BoardStateShowToast("Error occured");
     }
   }

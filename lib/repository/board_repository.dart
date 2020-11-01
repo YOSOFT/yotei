@@ -87,4 +87,9 @@ class BoardRepository {
     }
     return 1;
   }
+
+  Future<int> updatePanelValue(PanelData panelData) async {
+    var result = await _appDb.panelDao.updatePanelValue(panelData);
+    return result;
+  }
 }

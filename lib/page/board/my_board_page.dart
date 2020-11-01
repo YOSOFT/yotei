@@ -144,44 +144,68 @@ class _MyBoardPageState extends State<MyBoardPage> {
         });
   }
 
-  _displayDialog(context) {
+  _displayDialog(context, {PanelData pd = null}) {
     return showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(
-            title: Text("Add or edit"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                TextField(
-                  decoration: InputDecoration(hintText: "Panel title"),
-                  controller: _panelTitleController,
+          if (pd == null) {
+            _panelTitleController.text = pd.name;
+            _panelDescriptionController.text = pd.description;
+          }
+          return WillPopScope(
+            onWillPop: () async {
+              _panelTitleController.clear();
+              _panelDescriptionController.clear();
+              return true;
+            },
+            child: AlertDialog(
+              title: Text(pd == null ? "Add" : "Edit"),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    TextField(
+                      decoration: InputDecoration(hintText: "Panel title"),
+                      controller: _panelTitleController,
+                    ),
+                    TextField(
+                        maxLength: null,
+                        maxLines: null,
+                        keyboardType: TextInputType.multiline,
+                        controller: _panelDescriptionController,
+                        decoration:
+                            InputDecoration(hintText: "Panel description"))
+                  ],
                 ),
-                TextField(
-                    controller: _panelDescriptionController,
-                    decoration: InputDecoration(hintText: "Panel description"))
+              ),
+              actions: <Widget>[
+                FlatButton(
+                    onPressed: () {
+                      if (_panelTitleController.text.trim() == '' ||
+                          _panelDescriptionController.text.trim() == '') {
+                        _showToast("Please fill panel title and descrition");
+                      } else {
+                        if (pd == null) {
+                          PanelData panelData = PanelData(
+                              id: null,
+                              name: _panelTitleController.text.trim(),
+                              description:
+                                  _panelDescriptionController.text.trim(),
+                              boardId: this.widget.boardWithCategory.board.id,
+                              order: 1);
+                          _boardBloc.add(BoardEventCreatePanel(panelData));
+                          _resetPanelController();
+                          Navigator.pop(context);
+                        } else {
+                          _showToast("Should update");
+                          _resetPanelController();
+                          Navigator.pop(context);
+                        }
+                      }
+                    },
+                    child: Text("Save"))
               ],
             ),
-            actions: <Widget>[
-              FlatButton(
-                  onPressed: () {
-                    if (_panelTitleController.text.trim() == '' ||
-                        _panelDescriptionController.text.trim() == '') {
-                      _showToast("Please fill panel title and descrition");
-                    } else {
-                      PanelData panelData = PanelData(
-                          id: null,
-                          name: _panelTitleController.text.trim(),
-                          description: _panelDescriptionController.text.trim(),
-                          boardId: this.widget.boardWithCategory.board.id,
-                          order: 1);
-                      _boardBloc.add(BoardEventCreatePanel(panelData));
-                      _resetPanelController();
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: Text("Save"))
-            ],
           );
         });
   }
@@ -236,43 +260,52 @@ class _MyBoardPageState extends State<MyBoardPage> {
     return [
       Expanded(
           child: Card(
-        child: Padding(
-            padding: EdgeInsets.only(left: 16, right: 8, top: 8, bottom: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        header.panelData.name +
-                            "" +
-                            header.panelData.order.toString(),
-                        maxLines: 1,
-                        overflow: TextOverflow.fade,
-                        style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "Assistant"),
-                      ),
-                      Text(
-                        header.panelData.description,
-                        maxLines: 3,
-                      )
-                    ],
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        left: 16, right: 8, top: 8, bottom: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          header.panelData.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "Assistant"),
+                        ),
+                        Text(header.panelData.description,
+                            maxLines: 1, overflow: TextOverflow.ellipsis)
+                      ],
+                    ),
                   ),
-                ),
-                Row(
-                  children: [
-                    IconButton(
-                        icon: Icon(Icons.more_horiz),
-                        onPressed: () =>
-                            _showMenu(context, header.panelData.id))
-                  ],
-                )
+                  Positioned.fill(
+                      child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                        onTap: () => _showPanelInfoDialog(header.panelData)),
+                  ))
+                ],
+              ),
+            ),
+            Row(
+              children: [
+                IconButton(
+                    icon: Icon(Icons.more_horiz),
+                    onPressed: () {
+                      _showMenu(context, header.panelData);
+                    })
               ],
-            )),
+            )
+          ],
+        ),
       ))
     ];
   }
@@ -352,18 +385,17 @@ class _MyBoardPageState extends State<MyBoardPage> {
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('AlertDialog Title'),
+          title: Text('Delete item'),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('This is a demo alert dialog.'),
-                Text('Would you like to approve of this message?'),
+                Text('Would you like to delete this panel item?'),
               ],
             ),
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Approve'),
+              child: Text('Delete'),
               onPressed: () {
                 _deletePanelItem(item);
                 Navigator.of(context).pop();
@@ -422,7 +454,7 @@ class _MyBoardPageState extends State<MyBoardPage> {
         panelId, headers.map((e) => e.panelData).toList()));
   }
 
-  _showMenu(context, int panelId) {
+  _showMenu(context, PanelData panelData) {
     showCupertinoModalPopup(
         context: context,
         builder: (BuildContext context) => CupertinoActionSheet(
@@ -435,13 +467,13 @@ class _MyBoardPageState extends State<MyBoardPage> {
                   child: Text("Create new item"),
                   onPressed: () {
                     Navigator.pop(context);
-                    _displayItemDialog(context, panelId);
+                    _displayItemDialog(context, panelData.id);
                   },
                 ),
                 CupertinoActionSheetAction(
                   child: Text("Edit this panel"),
                   onPressed: () {
-                    print("Edit this panel");
+                    _displayDialog(context, pd: panelData);
                     Navigator.pop(context);
                   },
                 ),
@@ -449,12 +481,62 @@ class _MyBoardPageState extends State<MyBoardPage> {
                   child: Text("Delete this panel",
                       style: TextStyle(color: Colors.red)),
                   onPressed: () {
-                    _deletePanel(panelId);
+                    _askDeletePanel(panelData.id);
                     Navigator.pop(context);
                   },
                 ),
               ],
             ));
+  }
+
+  _askDeletePanel(panelId) {
+    return showDialog(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Would you like to delete this panel?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Delete'),
+              onPressed: () {
+                _deletePanel(panelId);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  _showPanelInfoDialog(PanelData panelData) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+              content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(panelData.name,
+                    style: TextStyle(
+                        fontFamily: "Assistant", fontWeight: FontWeight.bold)),
+                Container(
+                  margin: EdgeInsets.only(top: 16),
+                  child: Text(panelData.description),
+                )
+              ],
+            ),
+          ));
+        });
   }
 
   _showToast(String message) => Toast.show(message, context);
