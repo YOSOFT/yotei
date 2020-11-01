@@ -102,44 +102,60 @@ class _MyBoardPageState extends State<MyBoardPage> {
     );
   }
 
-  _displayItemDialog(context, panelId) {
+  _displayItemDialog(context, panelId, {PanelItemData panelItemData = null}) {
     return showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(
-            title: Text("Add panel item"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                TextField(
-                  controller: _panelItemTitleController,
-                  decoration: InputDecoration(hintText: "Title"),
+          if (panelItemData != null) {
+            _panelItemTitleController.text = panelItemData.name;
+            _panelItemDescController.text = panelItemData.description;
+          }
+          return WillPopScope(
+            onWillPop: () async {
+              _panelItemTitleController.clear();
+              _panelItemDescController.clear();
+              return true;
+            },
+            child: AlertDialog(
+              title: panelItemData == null ? Text("Add") : Text("Edit"),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    TextField(
+                      controller: _panelItemTitleController,
+                      decoration: InputDecoration(hintText: "Title"),
+                    ),
+                    TextField(
+                        maxLength: null,
+                        maxLines: null,
+                        keyboardType: TextInputType.multiline,
+                        controller: _panelItemDescController,
+                        decoration: InputDecoration(hintText: "Description"))
+                  ],
                 ),
-                TextField(
-                    controller: _panelItemDescController,
-                    decoration: InputDecoration(hintText: "Description"))
+              ),
+              actions: <Widget>[
+                FlatButton(
+                    onPressed: () {
+                      if (validatePanelItem()) {
+                        String name = _panelItemTitleController.text;
+                        String desc = _panelItemDescController.text;
+                        PanelItemData panelItemData = PanelItemData(
+                            id: null,
+                            name: name,
+                            description: desc,
+                            panelId: panelId,
+                            order: null);
+                        _boardBloc.add(
+                            BoardEventCreatePanelItem(panelId, panelItemData));
+                        _resetPanelItemController();
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: Text("Save"))
               ],
             ),
-            actions: <Widget>[
-              FlatButton(
-                  onPressed: () {
-                    if (validatePanelItem()) {
-                      String name = _panelItemTitleController.text;
-                      String desc = _panelItemDescController.text;
-                      PanelItemData panelItemData = PanelItemData(
-                          id: null,
-                          name: name,
-                          description: desc,
-                          panelId: panelId,
-                          order: null);
-                      _boardBloc.add(
-                          BoardEventCreatePanelItem(panelId, panelItemData));
-                      _resetPanelItemController();
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: Text("Save"))
-            ],
           );
         });
   }
@@ -148,7 +164,7 @@ class _MyBoardPageState extends State<MyBoardPage> {
     return showDialog(
         context: context,
         builder: (context) {
-          if (pd == null) {
+          if (pd != null) {
             _panelTitleController.text = pd.name;
             _panelDescriptionController.text = pd.description;
           }
@@ -197,7 +213,11 @@ class _MyBoardPageState extends State<MyBoardPage> {
                           _resetPanelController();
                           Navigator.pop(context);
                         } else {
-                          _showToast("Should update");
+                          PanelData panelData = pd.copyWith(
+                              name: _panelTitleController.text.trim(),
+                              description:
+                                  _panelDescriptionController.text.trim());
+                          _boardBloc.add(BoardEventUpdatePanelValue(panelData));
                           _resetPanelController();
                           Navigator.pop(context);
                         }
