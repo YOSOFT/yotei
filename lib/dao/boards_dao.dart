@@ -32,7 +32,13 @@ class BoardsDao extends DatabaseAccessor<AppDatabase> with _$BoardsDaoMixin {
   }
 
   Future<List<BoardWithCategory>> getAllBoardWithCategory() {
-    return select(boards).join([
+    return (select(boards)..orderBy([(clauses) => 
+      OrderingTerm(
+        expression: clauses.lastUpdated,
+        mode: OrderingMode.desc
+      ) 
+    
+    ])).join([
       leftOuterJoin(boardCategory, boardCategory.id.equalsExp(boards.category))
     ]).map((rows) {
       return BoardWithCategory(
@@ -57,9 +63,6 @@ class BoardsDao extends DatabaseAccessor<AppDatabase> with _$BoardsDaoMixin {
     BoardCategoryData category = await (select(boardCategory)
           ..where((tbl) => tbl.id.equals(b.category)))
         .getSingle();
-
-    print(result);
-    print(category);
     return BoardWithCategory(result, category);
   }
 

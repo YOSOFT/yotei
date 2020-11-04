@@ -181,3 +181,15 @@ class BoardEventDeleteBoard implements BoardEvent {
   @override
   bool get stringify => false;
 }
+
+class BoardEventUpdateBoardLastUpdated implements BoardEvent {
+  final Board board;
+
+  BoardEventUpdateBoardLastUpdated(this.board);
+
+  @override
+  List<Object> get props => [board];
+
+  @override
+  bool get stringify => false;
+}

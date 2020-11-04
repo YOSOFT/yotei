@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:laplanche/bloc/main_page_bloc/main_page_bloc.dart';
 import 'package:laplanche/bloc/main_page_bloc/main_page_state.dart';
 import 'package:laplanche/components/header_list_item.dart';
@@ -112,7 +113,7 @@ class _CategorizedComponentState extends State<CategorizedComponent>
                                     ),
                                     Align(
                                         alignment: Alignment.bottomRight,
-                                        child: Text("Date")),
+                                        child: Text("${_formatDate(board.board.lastUpdated)}")),
                                   ],
                                 ),
                               ),
@@ -128,6 +129,12 @@ class _CategorizedComponentState extends State<CategorizedComponent>
         },
       ),
     );
+  }
+
+  _formatDate(DateTime date){
+    var formatter = new DateFormat('dd MMM yyyy');
+    String formattedDate = formatter.format(date);
+    return formattedDate;    
   }
 
   Widget _buildHeaderList(BuildContext context, int sectionIndex, int index) {

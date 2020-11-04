@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:laplanche/bloc/create_board_bloc/create_board_bloc.dart';
 import 'package:laplanche/bloc/create_board_bloc/create_board_event.dart';
 import 'package:laplanche/bloc/create_board_bloc/create_board_state.dart';
@@ -52,47 +53,32 @@ class _CreateBoardPageState extends State<CreateBoardPage> {
                                     fontWeight: FontWeight.bold))),
                         Container(
                           margin: EdgeInsets.only(top: 16),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
                           child: TextField(
                             controller: _titleController,
                             maxLines: 1,
                             decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: "board title",
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 8)),
+                                hintText: "title",
+                            ),
                           ),
                         ),
                         Container(
                           margin: EdgeInsets.only(top: 8),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
                           child: TextField(
                             controller: _descriptionController,
-                            maxLines: 1,
+                            maxLines: null,
+                            keyboardType: TextInputType.multiline,
                             decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: "short description",
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 8)),
+                                hintText: "short description",),
                           ),
                         ),
                         Container(
                           margin: EdgeInsets.only(top: 8),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
                           child: TextField(
                             controller: _categoryController,
                             maxLines: 1,
                             decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: "category",
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 8)),
+                                hintText: "category"
+                            ),
                           ),
                         )
                       ],
@@ -107,10 +93,6 @@ class _CreateBoardPageState extends State<CreateBoardPage> {
                     children: <Widget>[
                       Container(
                           margin: EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border:
-                                  Border.all(width: 2, color: Colors.white)),
                           child: IconButton(
                               icon: Icon(Icons.save),
                               onPressed: () {
@@ -127,14 +109,16 @@ class _CreateBoardPageState extends State<CreateBoardPage> {
                                   _showToast(
                                       "Title or description must not be empty");
                                 } else {
-                                  DateTime now = DateTime.now();
+                                  var formatter = new DateFormat('yyyy-MM-dd');
+                                  String formattedDate = formatter.format(DateTime.now());
+                                  DateTime dt = DateTime.parse(formattedDate);
                                   _createBoardBloc.add(Save(
                                       Board(
                                           id: null,
                                           name: title,
                                           category: null,
                                           description: desc,
-                                          lastUpdated: now),
+                                          lastUpdated: dt),
                                       _categoryName));
                                 }
                               })),

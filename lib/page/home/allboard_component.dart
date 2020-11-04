@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:laplanche/bloc/main_page_bloc/main_page_bloc.dart';
 import 'package:laplanche/bloc/main_page_bloc/main_page_state.dart';
 import 'package:laplanche/model/board_with_category.dart';
@@ -133,7 +134,7 @@ class _AllBoardComponentState extends State<AllBoardComponent>
                         ),
                         Align(
                             alignment: Alignment.bottomRight,
-                            child: Text("Date")),
+                            child: Text("${_formatDate(board.board.lastUpdated)}")),
                       ],
                     ),
                   ),
@@ -143,6 +144,12 @@ class _AllBoardComponentState extends State<AllBoardComponent>
             ),
           );
         });
+  }
+
+  _formatDate(DateTime date){
+    var formatter = new DateFormat('dd MMM yyyy');
+    String formattedDate = formatter.format(date);
+    return formattedDate;    
   }
 
   @override

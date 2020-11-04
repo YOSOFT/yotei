@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laplanche/bloc/main_page_bloc/main_page_bloc.dart';
 import 'package:laplanche/bloc/main_page_bloc/main_page_event.dart';
 import 'package:laplanche/data/app_database.dart';
-import 'package:laplanche/page/board/board_page.dart';
+import 'package:laplanche/page/about/about_page.dart';
 import 'package:laplanche/page/create_board/create_board_page.dart';
 import 'package:laplanche/page/home/allboard_component.dart';
 import 'package:laplanche/page/home/categorized_component.dart';
@@ -99,7 +99,7 @@ class _HomePageState extends State<HomePage> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => BoardPage()));
+                                builder: (context) => AboutPage()));
                       }),
                 ],
               ),

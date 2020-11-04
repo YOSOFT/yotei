@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:laplanche/bloc/board_bloc/board_bloc.dart';
 import 'package:laplanche/bloc/board_bloc/board_event.dart';
 import 'package:laplanche/bloc/board_bloc/board_state.dart';
@@ -165,6 +166,7 @@ class _MyBoardPageState extends State<MyBoardPage> {
                           _boardBloc.add(BoardEventCreatePanelItem(
                               panelId, panelItemData));
                           _resetPanelItemController();
+                          _refreshLastUpdated();
                           Navigator.pop(context);
                         } else {
                           PanelItemData pid = panelItemData.copyWith(
@@ -174,6 +176,7 @@ class _MyBoardPageState extends State<MyBoardPage> {
                           _boardBloc.add(BoardEventUpdatePanelItemValue(
                               pid, this.widget.boardWithCategory.board.id));
                           _resetPanelItemController();
+                          _refreshLastUpdated();
                           Navigator.pop(context);
                         }
                       }
@@ -240,6 +243,7 @@ class _MyBoardPageState extends State<MyBoardPage> {
                                 name: _boardCategoryController.text.trim());
                         BoardWithCategory bwc = BoardWithCategory(b, cat);
                         _boardBloc.add(BoardEventUpdateBoardValue(bwc));
+                          _refreshLastUpdated();
                         Navigator.pop(context);
                       }
                     },
@@ -368,8 +372,7 @@ class _MyBoardPageState extends State<MyBoardPage> {
   }
 
   _fetchPanels() {
-    _boardBloc.add(
-        BoardEventGetPanelWithItems(this.widget.boardWithCategory.board.id));
+    _boardBloc.add(BoardEventGetPanelWithItems(this.widget.boardWithCategory.board.id));
   }
 
   _fetchBoard() {
@@ -491,9 +494,9 @@ class _MyBoardPageState extends State<MyBoardPage> {
   }
 
   _updatePanelItemToDatabaseAlt(List<PanelItemData> oldPanelItems,
-      List<PanelItemData> insertedPanelItems) {
-    _boardBloc.add(BoardEventUpdatePanelItemPositionAlt(oldPanelItems,
-        insertedPanelItems, this.widget.boardWithCategory.board.id));
+    List<PanelItemData> insertedPanelItems) {
+    _boardBloc.add(BoardEventUpdatePanelItemPositionAlt(oldPanelItems,insertedPanelItems, this.widget.boardWithCategory.board.id));
+    _refreshLastUpdated();
   }
 
   Widget _generateItemWidget(PanelItemData item) {
@@ -591,8 +594,8 @@ class _MyBoardPageState extends State<MyBoardPage> {
 
   _updatePanelPositionToDatabase() {
     List<PanelData> temps = headers.map((e) => e.panelData).toList();
-    _boardBloc.add(BoardEventSavePanelPosition(
-        temps, this.widget.boardWithCategory.board.id));
+    _boardBloc.add(BoardEventSavePanelPosition(temps, this.widget.boardWithCategory.board.id));
+    _refreshLastUpdated();
   }
 
   _deletePanelItem(PanelItemData panelItemData) {
@@ -605,6 +608,7 @@ class _MyBoardPageState extends State<MyBoardPage> {
         this.widget.boardWithCategory.board.id,
         panelItemData.id,
         panelItemsToOrder));
+    _refreshLastUpdated();
   }
 
   _deletePanel(int panelId) {
@@ -613,6 +617,7 @@ class _MyBoardPageState extends State<MyBoardPage> {
     headers.remove(selectedPanel);
     _boardBloc.add(BoardEventDeletePanel(
         panelId, headers.map((e) => e.panelData).toList()));
+    _refreshLastUpdated();
   }
 
   _showMenu(context, PanelData panelData) {
@@ -698,6 +703,15 @@ class _MyBoardPageState extends State<MyBoardPage> {
             ),
           ));
         });
+  }
+
+  _refreshLastUpdated(){
+    var formatter = new DateFormat('yyyy-MM-dd');
+    String formattedDate = formatter.format(DateTime.now());
+    DateTime dt = DateTime.parse(formattedDate);
+    Board board = this.widget.boardWithCategory.board.copyWith(lastUpdated: dt);
+    print(dt);
+    _boardBloc.add(BoardEventUpdateBoardLastUpdated(board));
   }
 
   _showToast(String message) => Toast.show(message, context);

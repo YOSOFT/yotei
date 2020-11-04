@@ -44,6 +44,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       yield* _updateBoardValue(event.bwc);
     } else if (event is BoardEventDeleteBoard) {
       yield* _deleteBoard(event.bwc);
+    }else if(event is BoardEventUpdateBoardLastUpdated){
+      yield* _updateLastUpdated(event.board);
     }
   }
 
@@ -217,7 +219,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
   Stream<BoardState> _updateBoardValue(BoardWithCategory bwc) async* {
     try {
-      print("Board bloc");
       yield BoardStateLoading();
       int categoryId = await _boardRepository.updateBoardValue(bwc);
       if (categoryId != -1) {
@@ -238,6 +239,16 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       yield BoardStateFinishPage();
     } catch (e) {
       print("Exception on deleteBoard $e");
+      yield BoardStateShowToast("Error occured");
+    }
+  }
+
+  Stream<BoardState> _updateLastUpdated(Board b) async* {
+    try{
+      yield BoardStateLoading();
+      await _boardRepository.updateLastUpdated(b);
+    }catch(e){
+      print("Exception in updateLastUpdated $e");
       yield BoardStateShowToast("Error occured");
     }
   }

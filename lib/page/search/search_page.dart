@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
+import 'package:intl/intl.dart';
 import 'package:laplanche/bloc/search/search_bloc.dart';
 import 'package:laplanche/bloc/search/search_event.dart';
 import 'package:laplanche/bloc/search/search_state.dart';
@@ -114,7 +115,7 @@ class _SearchPageState extends State<SearchPage> {
                         ),
                         Align(
                             alignment: Alignment.bottomRight,
-                            child: Text("Date")),
+                            child: Text("${_formatDate(board.board.lastUpdated)}")),
                       ],
                     ),
                   ),
@@ -124,5 +125,11 @@ class _SearchPageState extends State<SearchPage> {
             ),
           );
         });
+  }
+
+  _formatDate(DateTime date){
+    var formatter = new DateFormat('dd MMM yyyy');
+    String formattedDate = formatter.format(date);
+    return formattedDate;    
   }
 }

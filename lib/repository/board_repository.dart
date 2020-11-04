@@ -123,6 +123,10 @@ class BoardRepository {
     return result ? categoryId : -1;
   }
 
+  Future<int> updateLastUpdated(Board b) async {
+    return await _appDb.boardsDao.updateboard(b);
+  }
+
   Future<int> destroyBoard(BoardWithCategory bwc) async {
     List<PanelWithItems> panelsWithItems =
         await _appDb.panelDao.getAllPanelsWithItems(bwc.board.id);
