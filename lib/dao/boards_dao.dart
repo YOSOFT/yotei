@@ -42,6 +42,15 @@ class BoardsDao extends DatabaseAccessor<AppDatabase> with _$BoardsDaoMixin {
     }).get();
   }
 
+  Future<List<BoardWithCategory>> search(String q) {
+    return (select(boards)..where((tbl) => tbl.name.like("%"+q+"%"))).join([
+      leftOuterJoin(boardCategory, boardCategory.id.equalsExp(boards.category))
+    ]).map((rows) {
+      return BoardWithCategory(
+          rows.readTable(boards), rows.readTable(boardCategory));
+    }).get();
+  }
+
   Future<BoardWithCategory> getSingleBoardWithCategory(Board b) async {
     Board result =
         await (select(boards)..where((tbl) => tbl.id.equals(b.id))).getSingle();

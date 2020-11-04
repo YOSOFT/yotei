@@ -14,6 +14,10 @@ class BoardRepository {
     return _appDb.boardsDao.getAllBoardWithCategory();
   }
 
+  Future<List<BoardWithCategory>> searchBoards(String query) {
+    return _appDb.boardsDao.search(query);
+  }
+
   Future<BoardWithCategory> getSingleBoardWithCategory(Board b) {
     return _appDb.boardsDao.getSingleBoardWithCategory(b);
   }
