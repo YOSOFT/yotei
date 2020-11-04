@@ -14,6 +14,10 @@ class BoardRepository {
     return _appDb.boardsDao.getAllBoardWithCategory();
   }
 
+  Future<BoardWithCategory> getSingleBoardWithCategory(Board b) {
+    return _appDb.boardsDao.getSingleBoardWithCategory(b);
+  }
+
   Future<List<PanelData>> getAllPanels(int boardId) {
     return _appDb.panelDao.getAllPanels(boardId);
   }
@@ -101,5 +105,28 @@ class BoardRepository {
   Future<int> updatePanelItemValue(PanelItemData panelItemData) async {
     var result = await _appDb.panelDao.updatePanelItemValue(panelItemData);
     return result;
+  }
+
+  Future<int> updateBoardValue(BoardWithCategory bwc) async {
+    var oldCategory = bwc.boardCategoryData;
+    int categoryId =
+        await _appDb.categoryDao.insertCategory(bwc.boardCategoryData.name);
+    if (categoryId != oldCategory.id) {
+      await deleteCategoryIfNotUsed(oldCategory.id);
+    }
+    var result = await _appDb.boardsDao
+        .updateboard(bwc.board.copyWith(category: categoryId));
+    return result ? categoryId : -1;
+  }
+
+  Future<int> destroyBoard(BoardWithCategory bwc) async {
+    List<PanelWithItems> panelsWithItems =
+        await _appDb.panelDao.getAllPanelsWithItems(bwc.board.id);
+    for (int i = 0; i < panelsWithItems.length; i++) {
+      await _appDb.panelDao.deletePanel(panelsWithItems[i].panelData.id);
+    }
+    await _appDb.boardsDao.deleteBoard(bwc.board);
+    await deleteCategoryIfNotUsed(bwc.boardCategoryData.id);
+    return 1;
   }
 }

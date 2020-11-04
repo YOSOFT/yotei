@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:laplanche/data/app_database.dart';
+import 'package:laplanche/model/board_with_category.dart';
 import 'package:laplanche/model/panel_with_items.dart';
 
 abstract class BoardState extends Equatable {}
@@ -58,6 +59,26 @@ class BoardStatePanelWithItems implements BoardState {
 
   @override
   List<Object> get props => [panelWithItems];
+
+  @override
+  bool get stringify => false;
+}
+
+class BoardStateSingleBoardWithCategory implements BoardState {
+  final BoardWithCategory bwc;
+
+  BoardStateSingleBoardWithCategory(this.bwc);
+
+  @override
+  List<Object> get props => [bwc];
+
+  @override
+  bool get stringify => false;
+}
+
+class BoardStateFinishPage implements BoardState {
+  @override
+  List<Object> get props => [];
 
   @override
   bool get stringify => false;

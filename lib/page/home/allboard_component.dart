@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laplanche/bloc/main_page_bloc/main_page_bloc.dart';
-import 'package:laplanche/bloc/main_page_bloc/main_page_event.dart';
 import 'package:laplanche/bloc/main_page_bloc/main_page_state.dart';
-import 'package:laplanche/components/board_list_item.dart';
 import 'package:laplanche/model/board_with_category.dart';
+import 'package:laplanche/page/board/my_board_page.dart';
+import 'package:laplanche/page/home/home_page.dart';
 import 'package:toast/toast.dart';
 
 class AllBoardComponent extends StatefulWidget {
+  final DataCallback dataCallback;
+
+  AllBoardComponent({this.dataCallback});
+
   @override
   _AllBoardComponentState createState() => _AllBoardComponentState();
 }
@@ -20,17 +24,8 @@ class _AllBoardComponentState extends State<AllBoardComponent>
   @override
   void initState() {
     _mainPageBloc = BlocProvider.of<MainPageBloc>(context);
+    widget.dataCallback();
     super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    _fetchBoard();
-    super.didChangeDependencies();
-  }
-
-  void _fetchBoard() {
-    _mainPageBloc.add(GetAll());
   }
 
   @override
@@ -87,11 +82,67 @@ class _AllBoardComponentState extends State<AllBoardComponent>
 
   Widget _createBoardList() {
     if (_boards.isNotEmpty) {
-      return BoardListItem(_boards);
+      return buildList(_boards);
     }
     return Center(
       child: Text("Nothing for now"),
     );
+  }
+
+  buildList(_boards) {
+    return ListView.builder(
+        physics: ClampingScrollPhysics(),
+        itemCount: _boards.length,
+        itemBuilder: (context, index) {
+          BoardWithCategory board = _boards[index];
+          return Padding(
+            padding: const EdgeInsets.only(left: 8.0, right: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                InkWell(
+                  onTap: () => {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return MyBoardPage(boardWithCategory: _boards[index]);
+                    })).then((value) => {this.widget.dataCallback()})
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          "${board.board.name}",
+                          style: TextStyle(
+                              fontFamily: "Assistant",
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          "${board.board.description}",
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 3,
+                          style: TextStyle(
+                            fontFamily: "Assistant",
+                          ),
+                        ),
+                        Text(
+                          "${board.boardCategoryData.name}",
+                          style: TextStyle(fontFamily: "Assistant"),
+                        ),
+                        Align(
+                            alignment: Alignment.bottomRight,
+                            child: Text("Date")),
+                      ],
+                    ),
+                  ),
+                ),
+                Divider()
+              ],
+            ),
+          );
+        });
   }
 
   @override

@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:laplanche/data/app_database.dart';
+import 'package:laplanche/model/board_with_category.dart';
 
 abstract class BoardEvent extends Equatable {}
 
@@ -141,6 +142,41 @@ class BoardEventUpdatePanelItemValue implements BoardEvent {
 
   @override
   List<Object> get props => [panelItemData, boardId];
+
+  @override
+  bool get stringify => false;
+}
+
+class BoardEventGetSingleBoardWithCategory implements BoardEvent {
+  final BoardWithCategory boardWithCategory;
+
+  BoardEventGetSingleBoardWithCategory(this.boardWithCategory);
+
+  @override
+  List<Object> get props => [boardWithCategory];
+
+  @override
+  bool get stringify => false;
+}
+
+class BoardEventUpdateBoardValue implements BoardEvent {
+  final BoardWithCategory bwc;
+
+  BoardEventUpdateBoardValue(this.bwc);
+  @override
+  List<Object> get props => [bwc];
+
+  @override
+  bool get stringify => false;
+}
+
+class BoardEventDeleteBoard implements BoardEvent {
+  final BoardWithCategory bwc;
+
+  BoardEventDeleteBoard(this.bwc);
+
+  @override
+  List<Object> get props => [bwc];
 
   @override
   bool get stringify => false;

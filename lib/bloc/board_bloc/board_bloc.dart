@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laplanche/bloc/board_bloc/board_event.dart';
 import 'package:laplanche/bloc/board_bloc/board_state.dart';
 import 'package:laplanche/data/app_database.dart';
+import 'package:laplanche/model/board_with_category.dart';
 import 'package:laplanche/repository/board_repository.dart';
 
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
@@ -37,6 +38,12 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       yield* _updatePanelValue(event.panelData);
     } else if (event is BoardEventUpdatePanelItemValue) {
       yield* _updatePanelItemValue(event.panelItemData, event.boardId);
+    } else if (event is BoardEventGetSingleBoardWithCategory) {
+      yield* _getSingleBoardWithCategory(event.boardWithCategory);
+    } else if (event is BoardEventUpdateBoardValue) {
+      yield* _updateBoardValue(event.bwc);
+    } else if (event is BoardEventDeleteBoard) {
+      yield* _deleteBoard(event.bwc);
     }
   }
 
@@ -110,18 +117,18 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     }
   }
 
-  Stream<BoardState> _saveItemPositionToDatabase(
-      List<PanelItemData> panelItemDatas, int panelId, int boardId) async* {
-    try {
-      yield BoardStateLoading();
-      await _boardRepository.updatePanelItemPosition(panelItemDatas);
-      var panels = await _boardRepository.getAllPanelWithItems(boardId);
-      yield BoardStatePanelWithItems(panels);
-    } catch (e) {
-      print("Exception on save panel item data position %e");
-      yield BoardStateShowToast("Error occured...");
-    }
-  }
+  // Stream<BoardState> _saveItemPositionToDatabase(
+  //     List<PanelItemData> panelItemDatas, int panelId, int boardId) async* {
+  //   try {
+  //     yield BoardStateLoading();
+  //     await _boardRepository.updatePanelItemPosition(panelItemDatas);
+  //     var panels = await _boardRepository.getAllPanelWithItems(boardId);
+  //     yield BoardStatePanelWithItems(panels);
+  //   } catch (e) {
+  //     print("Exception on save panel item data position %e");
+  //     yield BoardStateShowToast("Error occured...");
+  //   }
+  // }
 
   Stream<BoardState> _saveItemPositionToDatabaseAlt(
       List<PanelItemData> oldItemDatas,
@@ -190,6 +197,47 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       yield BoardStatePanelWithItems(panels);
     } catch (e) {
       print("Exception in updatePanelItemValue $e");
+      yield BoardStateShowToast("Error occured");
+    }
+  }
+
+  Stream<BoardState> _getSingleBoardWithCategory(
+      BoardWithCategory boardWithCategory) async* {
+    try {
+      print(boardWithCategory);
+      yield BoardStateLoading();
+      var bwc = await _boardRepository
+          .getSingleBoardWithCategory(boardWithCategory.board);
+      yield BoardStateSingleBoardWithCategory(bwc);
+    } catch (e) {
+      print("Exception in _getSingleBoardWithCat $e");
+      yield BoardStateShowToast("Error occured");
+    }
+  }
+
+  Stream<BoardState> _updateBoardValue(BoardWithCategory bwc) async* {
+    try {
+      print("Board bloc");
+      yield BoardStateLoading();
+      int categoryId = await _boardRepository.updateBoardValue(bwc);
+      if (categoryId != -1) {
+        var updated = await _boardRepository.getSingleBoardWithCategory(
+            bwc.board.copyWith(category: categoryId));
+        yield BoardStateSingleBoardWithCategory(updated);
+      }
+    } catch (e) {
+      print("Exception in updateBoardvalue $e");
+      yield BoardStateShowToast("Error occured");
+    }
+  }
+
+  Stream<BoardState> _deleteBoard(BoardWithCategory bwc) async* {
+    try {
+      yield BoardStateLoading();
+      await _boardRepository.destroyBoard(bwc);
+      yield BoardStateFinishPage();
+    } catch (e) {
+      print("Exception on deleteBoard $e");
       yield BoardStateShowToast("Error occured");
     }
   }

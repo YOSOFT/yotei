@@ -11,6 +11,8 @@ import 'package:laplanche/page/search/search_page.dart';
 import 'package:laplanche/repository/board_repository.dart';
 import 'package:laplanche/utils/injector.dart';
 
+typedef DataCallback = void Function();
+
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -29,6 +31,12 @@ class _HomePageState extends State<HomePage> {
   void _fetchBoard() {
     _mainPageBloc.add(GetAllByCategory());
     _mainPageBloc.add(GetAll());
+  }
+
+  @override
+  void didChangeDependencies() {
+    _fetchBoard();
+    super.didChangeDependencies();
   }
 
   @override
@@ -51,8 +59,10 @@ class _HomePageState extends State<HomePage> {
               child: PageView(
                 controller: _pageController,
                 children: <Widget>[
-                  AllBoardComponent(),
-                  CategorizedComponent(),
+                  AllBoardComponent(
+                    dataCallback: () => {_fetchBoard()},
+                  ),
+                  CategorizedComponent(dataCallback: () => {_fetchBoard()}),
                 ],
               ),
             ),
@@ -72,9 +82,7 @@ class _HomePageState extends State<HomePage> {
                                 MaterialPageRoute(
                                     builder: (context) => CreateBoardPage()))
                             .then((value) {
-                          if (value != null) {
-                            _fetchBoard();
-                          }
+                          _fetchBoard();
                         });
                       }),
                   IconButton(

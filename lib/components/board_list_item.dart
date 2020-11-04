@@ -20,10 +20,12 @@ class BoardListItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 InkWell(
-                  onTap: () => Navigator.push(context,
-                      MaterialPageRoute(builder: (context) {
-                    return MyBoardPage(boardWithCategory: _boards[index]);
-                  })),
+                  onTap: () => {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return MyBoardPage(boardWithCategory: _boards[index]);
+                    }))
+                  },
                   child: Padding(
                     padding: EdgeInsets.all(16),
                     child: Column(

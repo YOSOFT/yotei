@@ -43,9 +43,10 @@ class _MyBoardPageState extends State<MyBoardPage> {
 
   @override
   void initState() {
-    currentBoardWithCategory = widget.boardWithCategory;
     _boardBloc = BoardBloc(BoardRepository(locator<AppDatabase>()));
+    currentBoardWithCategory = widget.boardWithCategory;
     _fetchPanels();
+    _fetchBoard();
     super.initState();
   }
 
@@ -68,7 +69,9 @@ class _MyBoardPageState extends State<MyBoardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(this.widget.boardWithCategory.board.name),
+        title: Text(currentBoardWithCategory == null
+            ? ""
+            : currentBoardWithCategory.board.name),
         actions: <Widget>[
           IconButton(
               icon: Icon(Icons.add), onPressed: () => _displayDialog(context)),
@@ -77,7 +80,7 @@ class _MyBoardPageState extends State<MyBoardPage> {
             itemBuilder: (BuildContext context) {
               return {'Edit board', 'Delete board'}.map((String choice) {
                 return PopupMenuItem<String>(
-                  value: choice,
+                  value: choice.toLowerCase(),
                   child: Text(choice),
                 );
               }).toList();
@@ -96,6 +99,12 @@ class _MyBoardPageState extends State<MyBoardPage> {
               panelWithItemsFromDb.clear();
               panelWithItemsFromDb.addAll(state.panelWithItems);
               _moveFromDbToListAlt();
+            } else if (state is BoardStateSingleBoardWithCategory) {
+              setState(() {
+                currentBoardWithCategory = state.bwc;
+              });
+            } else if (state is BoardStateFinishPage) {
+              Navigator.pop(context);
             }
           },
           builder: (context, state) {
@@ -176,7 +185,7 @@ class _MyBoardPageState extends State<MyBoardPage> {
         });
   }
 
-  _displayBoardDialog(contetx) {
+  _displayBoardDialog(context) {
     return showDialog(
         context: context,
         builder: (context) {
@@ -184,7 +193,7 @@ class _MyBoardPageState extends State<MyBoardPage> {
           _boardDescriptionController.text =
               currentBoardWithCategory.board.description;
           _boardCategoryController.text =
-              currentBoardWithCategory.boardCategoryData.name;
+              currentBoardWithCategory.boardCategoryData.name.toString();
           return WillPopScope(
             onWillPop: () async {
               _boardTitleController.clear();
@@ -222,6 +231,15 @@ class _MyBoardPageState extends State<MyBoardPage> {
                           _boardCategoryController.text.trim() == '') {
                         _showToast("Please fill all forms first");
                       } else {
+                        Board b = currentBoardWithCategory.board.copyWith(
+                            name: _boardTitleController.text.trim(),
+                            description:
+                                _boardDescriptionController.text.trim());
+                        BoardCategoryData cat =
+                            currentBoardWithCategory.boardCategoryData.copyWith(
+                                name: _boardCategoryController.text.trim());
+                        BoardWithCategory bwc = BoardWithCategory(b, cat);
+                        _boardBloc.add(BoardEventUpdateBoardValue(bwc));
                         Navigator.pop(context);
                       }
                     },
@@ -303,7 +321,40 @@ class _MyBoardPageState extends State<MyBoardPage> {
   }
 
   _onSelectedOptionMenu(String menuItem) {
-    _showToast(menuItem);
+    if (menuItem == "edit board") {
+      _displayBoardDialog(context);
+    } else {
+      _askDeleteBoard();
+    }
+  }
+
+  _askDeleteBoard() {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete board'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(
+                    'Would you like to delete ${currentBoardWithCategory.board.name}?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Delete'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _boardBloc.add(BoardEventDeleteBoard(currentBoardWithCategory));
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   _resetPanelController() {
@@ -319,6 +370,11 @@ class _MyBoardPageState extends State<MyBoardPage> {
   _fetchPanels() {
     _boardBloc.add(
         BoardEventGetPanelWithItems(this.widget.boardWithCategory.board.id));
+  }
+
+  _fetchBoard() {
+    _boardBloc
+        .add(BoardEventGetSingleBoardWithCategory(currentBoardWithCategory));
   }
 
   _moveFromDbToListAlt() {

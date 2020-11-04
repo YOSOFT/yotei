@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laplanche/bloc/main_page_bloc/main_page_bloc.dart';
-import 'package:laplanche/bloc/main_page_bloc/main_page_event.dart';
 import 'package:laplanche/bloc/main_page_bloc/main_page_state.dart';
 import 'package:laplanche/components/header_list_item.dart';
 import 'package:laplanche/model/board_with_category.dart';
 import 'package:laplanche/page/board/my_board_page.dart';
+import 'package:laplanche/page/home/home_page.dart';
 import 'package:laplanche/utils/board_section.dart';
 import 'package:sticky_and_expandable_list/sticky_and_expandable_list.dart';
 import 'package:toast/toast.dart';
 
 class CategorizedComponent extends StatefulWidget {
+  final DataCallback dataCallback;
+
+  CategorizedComponent({this.dataCallback});
+
   @override
   _CategorizedComponentState createState() => _CategorizedComponentState();
 }
@@ -24,18 +28,8 @@ class _CategorizedComponentState extends State<CategorizedComponent>
 
   @override
   void initState() {
-    _mainPageBloc = BlocProvider.of<MainPageBloc>(context);
+    widget.dataCallback();
     super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    _fetchBoard();
-    super.didChangeDependencies();
-  }
-
-  void _fetchBoard() {
-    _mainPageBloc.add(GetAllByCategory());
   }
 
   @override
@@ -91,7 +85,7 @@ class _CategorizedComponentState extends State<CategorizedComponent>
                               onTap: () => Navigator.push(context,
                                   MaterialPageRoute(builder: (context) {
                                 return MyBoardPage(boardWithCategory: board);
-                              })),
+                              })).then((value) => this.widget.dataCallback()),
                               child: Padding(
                                 padding: EdgeInsets.all(16),
                                 child: Column(
