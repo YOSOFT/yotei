@@ -124,7 +124,7 @@ class BoardRepository {
   }
 
   Future<int> updateLastUpdated(Board b) async {
-    return await _appDb.boardsDao.updateboard(b);
+    return await _appDb.boardsDao.updateboard(b) ? 1 : 0;
   }
 
   Future<int> destroyBoard(BoardWithCategory bwc) async {

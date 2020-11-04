@@ -245,7 +245,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
   Stream<BoardState> _updateLastUpdated(Board b) async* {
     try{
-      yield BoardStateLoading();
       await _boardRepository.updateLastUpdated(b);
     }catch(e){
       print("Exception in updateLastUpdated $e");

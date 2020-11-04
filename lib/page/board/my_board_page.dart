@@ -501,44 +501,55 @@ class _MyBoardPageState extends State<MyBoardPage> {
 
   Widget _generateItemWidget(PanelItemData item) {
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.only(left: 16.0, right: 0, top: 8, bottom: 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(item.name,
-                      style: TextStyle(fontSize: 18),
-                      overflow: TextOverflow.fade,
-                      maxLines: 2),
-                  Text(item.description,
-                      style: TextStyle(fontSize: 14),
-                      overflow: TextOverflow.fade,
-                      maxLines: 4)
-                ],
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0, right: 0, top: 8, bottom: 8),
+                  child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(item.name,
+                        style: TextStyle(fontSize: 18),
+                        overflow: TextOverflow.fade,
+                        maxLines: 2),
+                    Text(item.description,
+                        style: TextStyle(fontSize: 14),
+                        overflow: TextOverflow.fade,
+                        maxLines: 4)
+                  ],
               ),
+                ),
+              Positioned.fill(
+                  child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                      onTap: () => _showPanelItemInfoDialog(item)),
+                ))
+
+              ],
             ),
-            PopupMenuButton<String>(
-              onSelected: (i) => {
-                if (i == "edit")
-                  {_displayItemDialog(context, item.id, panelItemData: item)}
-                else
-                  {_askDeletePanelItem(item)}
-              },
-              itemBuilder: (BuildContext context) {
-                return {"Edit", "Delete"}.map((el) {
-                  return PopupMenuItem<String>(
-                    value: el.toLowerCase(),
-                    child: Text(el),
-                  );
-                }).toList();
-              },
-            )
-          ],
-        ),
+          ),
+          PopupMenuButton<String>(
+            onSelected: (i) => {
+              if (i == "edit")
+                {_displayItemDialog(context, item.id, panelItemData: item)}
+              else
+                {_askDeletePanelItem(item)}
+            },
+            itemBuilder: (BuildContext context) {
+              return {"Edit", "Delete"}.map((el) {
+                return PopupMenuItem<String>(
+                  value: el.toLowerCase(),
+                  child: Text(el),
+                );
+              }).toList();
+            },
+          )
+        ],
       ),
     );
   }
@@ -698,6 +709,28 @@ class _MyBoardPageState extends State<MyBoardPage> {
                 Container(
                   margin: EdgeInsets.only(top: 16),
                   child: Text(panelData.description),
+                )
+              ],
+            ),
+          ));
+        });
+  }
+
+    _showPanelItemInfoDialog(PanelItemData panelItemData) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+              content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(panelItemData.name,
+                    style: TextStyle(
+                        fontFamily: "Assistant", fontWeight: FontWeight.bold)),
+                Container(
+                  margin: EdgeInsets.only(top: 16),
+                  child: Text(panelItemData.description),
                 )
               ],
             ),
