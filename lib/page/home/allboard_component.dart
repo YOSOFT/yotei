@@ -153,5 +153,5 @@ class _AllBoardComponentState extends State<AllBoardComponent>
   }
 
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => false;
 }

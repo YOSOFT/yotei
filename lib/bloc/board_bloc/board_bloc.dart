@@ -23,12 +23,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       yield* _savePanelPositionToDatabase(event.panelDatas, event.boardId);
     } else if (event is BoardEventDeletePanel) {
       yield* _deletePanel(event.panelId, event.panelDatas);
-    }
-    // else if (event is BoardEventUpdatePanelItemPosition) {
-    //   yield* _saveItemPositionToDatabase(
-    //       event.panelItemDatas, event.panelId, event.boardId);
-    // }
-    else if (event is BoardEventUpdatePanelItemPositionAlt) {
+    } else if (event is BoardEventUpdatePanelItemPositionAlt) {
       yield* _saveItemPositionToDatabaseAlt(
           event.oldItemDatas, event.insertedItemDatas, event.boardId);
     } else if (event is BoardEventDeletePanelItem) {
@@ -119,19 +114,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     }
   }
 
-  // Stream<BoardState> _saveItemPositionToDatabase(
-  //     List<PanelItemData> panelItemDatas, int panelId, int boardId) async* {
-  //   try {
-  //     yield BoardStateLoading();
-  //     await _boardRepository.updatePanelItemPosition(panelItemDatas);
-  //     var panels = await _boardRepository.getAllPanelWithItems(boardId);
-  //     yield BoardStatePanelWithItems(panels);
-  //   } catch (e) {
-  //     print("Exception on save panel item data position %e");
-  //     yield BoardStateShowToast("Error occured...");
-  //   }
-  // }
-
   Stream<BoardState> _saveItemPositionToDatabaseAlt(
       List<PanelItemData> oldItemDatas,
       List<PanelItemData> insertedItems,
@@ -221,11 +203,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     try {
       yield BoardStateLoading();
       int categoryId = await _boardRepository.updateBoardValue(bwc);
-      if (categoryId != -1) {
-        var updated = await _boardRepository.getSingleBoardWithCategory(
-            bwc.board.copyWith(category: categoryId));
-        yield BoardStateSingleBoardWithCategory(updated);
-      }
+      var updated = await _boardRepository.getSingleBoardWithCategory(bwc.board.copyWith(category: categoryId));
+      yield BoardStateSingleBoardWithCategory(updated);
     } catch (e) {
       print("Exception in updateBoardvalue $e");
       yield BoardStateShowToast("Error occured");

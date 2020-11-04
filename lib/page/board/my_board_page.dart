@@ -101,6 +101,7 @@ class _MyBoardPageState extends State<MyBoardPage> {
               panelWithItemsFromDb.addAll(state.panelWithItems);
               _moveFromDbToListAlt();
             } else if (state is BoardStateSingleBoardWithCategory) {
+              print(state.bwc.board.toJsonString());
               setState(() {
                 currentBoardWithCategory = state.bwc;
               });
