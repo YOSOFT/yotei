@@ -7,8 +7,9 @@ import 'package:laplanche/model/boards.dart';
 import 'package:laplanche/model/panel.dart';
 import 'package:laplanche/model/panel_item.dart';
 import 'package:moor/moor.dart';
+import 'package:moor_ffi/database.dart';
 import 'package:moor_ffi/moor_ffi.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:path_provider/path_provider.dart' as paths;
 import 'package:path/path.dart' as p;
 
 part 'app_database.g.dart';
@@ -27,8 +28,13 @@ class AppDatabase extends _$AppDatabase {
   static LazyDatabase _openConnection() {
     if (_lazyDatabase == null) {
       _lazyDatabase = LazyDatabase(() async {
-        final dbFolder = await getApplicationDocumentsDirectory();
-        final file = File(p.join(dbFolder.path, 'yotei.sqlite'));
+        File file;
+        if (Platform.isMacOS || Platform.isLinux) {
+          file = File('db.sqlite');
+        }else{
+          final dbFolder = await paths.getApplicationDocumentsDirectory();
+          file = File(p.join(dbFolder.path, 'yotei.sqlite'));
+        }
         return VmDatabase(file);
       });
       return _lazyDatabase;
