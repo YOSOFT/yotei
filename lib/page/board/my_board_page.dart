@@ -26,6 +26,10 @@ class MyBoardPage extends StatefulWidget {
 }
 
 class _MyBoardPageState extends State<MyBoardPage> {
+  BoardWithCategory currentBoardWithCategory;
+  TextEditingController _boardTitleController = TextEditingController();
+  TextEditingController _boardDescriptionController = TextEditingController();
+  TextEditingController _boardCategoryController = TextEditingController();
   TextEditingController _panelTitleController = TextEditingController();
   TextEditingController _panelDescriptionController = TextEditingController();
   TextEditingController _panelItemTitleController = TextEditingController();
@@ -39,6 +43,7 @@ class _MyBoardPageState extends State<MyBoardPage> {
 
   @override
   void initState() {
+    currentBoardWithCategory = widget.boardWithCategory;
     _boardBloc = BoardBloc(BoardRepository(locator<AppDatabase>()));
     _fetchPanels();
     super.initState();
@@ -139,17 +144,84 @@ class _MyBoardPageState extends State<MyBoardPage> {
                 FlatButton(
                     onPressed: () {
                       if (validatePanelItem()) {
-                        String name = _panelItemTitleController.text;
-                        String desc = _panelItemDescController.text;
-                        PanelItemData panelItemData = PanelItemData(
-                            id: null,
-                            name: name,
-                            description: desc,
-                            panelId: panelId,
-                            order: null);
-                        _boardBloc.add(
-                            BoardEventCreatePanelItem(panelId, panelItemData));
-                        _resetPanelItemController();
+                        if (panelItemData == null) {
+                          String name = _panelItemTitleController.text;
+                          String desc = _panelItemDescController.text;
+                          PanelItemData panelItemData = PanelItemData(
+                              id: null,
+                              name: name,
+                              description: desc,
+                              panelId: panelId,
+                              order: null);
+                          _boardBloc.add(BoardEventCreatePanelItem(
+                              panelId, panelItemData));
+                          _resetPanelItemController();
+                          Navigator.pop(context);
+                        } else {
+                          PanelItemData pid = panelItemData.copyWith(
+                              name: _panelItemTitleController.text.trim(),
+                              description:
+                                  _panelItemDescController.text.trim());
+                          _boardBloc.add(BoardEventUpdatePanelItemValue(
+                              pid, this.widget.boardWithCategory.board.id));
+                          _resetPanelItemController();
+                          Navigator.pop(context);
+                        }
+                      }
+                    },
+                    child: Text("Save"))
+              ],
+            ),
+          );
+        });
+  }
+
+  _displayBoardDialog(contetx) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          _boardTitleController.text = currentBoardWithCategory.board.name;
+          _boardDescriptionController.text =
+              currentBoardWithCategory.board.description;
+          _boardCategoryController.text =
+              currentBoardWithCategory.boardCategoryData.name;
+          return WillPopScope(
+            onWillPop: () async {
+              _boardTitleController.clear();
+              _boardDescriptionController.clear();
+              _boardCategoryController.clear();
+              return true;
+            },
+            child: AlertDialog(
+              title: Text("Edit"),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    TextField(
+                        decoration: InputDecoration(hintText: "Board name"),
+                        controller: _boardTitleController),
+                    TextField(
+                        maxLength: null,
+                        maxLines: null,
+                        keyboardType: TextInputType.multiline,
+                        controller: _boardDescriptionController,
+                        decoration:
+                            InputDecoration(hintText: "Board description")),
+                    TextField(
+                        controller: _boardCategoryController,
+                        decoration: InputDecoration(hintText: "Board category"))
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                FlatButton(
+                    onPressed: () {
+                      if (_boardTitleController.text.trim() == '' ||
+                          _boardDescriptionController.text.trim() == '' ||
+                          _boardCategoryController.text.trim() == '') {
+                        _showToast("Please fill all forms first");
+                      } else {
                         Navigator.pop(context);
                       }
                     },
@@ -379,7 +451,7 @@ class _MyBoardPageState extends State<MyBoardPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(item.name + " [" + item.order.toString() + "]",
+                  Text(item.name,
                       style: TextStyle(fontSize: 18),
                       overflow: TextOverflow.fade,
                       maxLines: 2),
@@ -390,9 +462,22 @@ class _MyBoardPageState extends State<MyBoardPage> {
                 ],
               ),
             ),
-            IconButton(
-                icon: Icon(Icons.more_vert),
-                onPressed: () => {_askDeletePanelItem(item)})
+            PopupMenuButton<String>(
+              onSelected: (i) => {
+                if (i == "edit")
+                  {_displayItemDialog(context, item.id, panelItemData: item)}
+                else
+                  {_askDeletePanelItem(item)}
+              },
+              itemBuilder: (BuildContext context) {
+                return {"Edit", "Delete"}.map((el) {
+                  return PopupMenuItem<String>(
+                    value: el.toLowerCase(),
+                    child: Text(el),
+                  );
+                }).toList();
+              },
+            )
           ],
         ),
       ),
@@ -402,7 +487,7 @@ class _MyBoardPageState extends State<MyBoardPage> {
   _askDeletePanelItem(PanelItemData item) {
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // user must tap button!
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Delete item'),
@@ -493,16 +578,16 @@ class _MyBoardPageState extends State<MyBoardPage> {
                 CupertinoActionSheetAction(
                   child: Text("Edit this panel"),
                   onPressed: () {
-                    _displayDialog(context, pd: panelData);
                     Navigator.pop(context);
+                    _displayDialog(context, pd: panelData);
                   },
                 ),
                 CupertinoActionSheetAction(
                   child: Text("Delete this panel",
                       style: TextStyle(color: Colors.red)),
                   onPressed: () {
-                    _askDeletePanel(panelData.id);
                     Navigator.pop(context);
+                    _askDeletePanel(panelData.id);
                   },
                 ),
               ],

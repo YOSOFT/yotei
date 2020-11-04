@@ -132,3 +132,16 @@ class BoardEventUpdatePanelValue implements BoardEvent {
   @override
   bool get stringify => false;
 }
+
+class BoardEventUpdatePanelItemValue implements BoardEvent {
+  final PanelItemData panelItemData;
+  final int boardId;
+
+  BoardEventUpdatePanelItemValue(this.panelItemData, this.boardId);
+
+  @override
+  List<Object> get props => [panelItemData, boardId];
+
+  @override
+  bool get stringify => false;
+}

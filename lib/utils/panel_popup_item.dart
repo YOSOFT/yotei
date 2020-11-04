@@ -2,7 +2,7 @@ import 'package:laplanche/data/app_database.dart';
 
 class PanelPopupItem {
   String title;
-  PanelData panelData;
+  PanelItemData panelItemData;
 
-  PanelPopupItem(this.title, this.panelData);
+  PanelPopupItem(this.title, this.panelItemData);
 }

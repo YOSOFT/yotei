@@ -74,6 +74,11 @@ class BoardRepository {
     return result;
   }
 
+  Future<int> deleteBoard(Board board) async {
+    var result = await _appDb.boardsDao.deleteBoard(board);
+    return result;
+  }
+
   Future<int> deletePanelItem(int panelItemId) async {
     var result = await _appDb.panelDao.deletePanelItem(panelItemId);
     return result;
@@ -90,6 +95,11 @@ class BoardRepository {
 
   Future<int> updatePanelValue(PanelData panelData) async {
     var result = await _appDb.panelDao.updatePanelValue(panelData);
+    return result;
+  }
+
+  Future<int> updatePanelItemValue(PanelItemData panelItemData) async {
+    var result = await _appDb.panelDao.updatePanelItemValue(panelItemData);
     return result;
   }
 }

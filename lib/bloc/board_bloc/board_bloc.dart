@@ -22,10 +22,12 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       yield* _savePanelPositionToDatabase(event.panelDatas, event.boardId);
     } else if (event is BoardEventDeletePanel) {
       yield* _deletePanel(event.panelId, event.panelDatas);
-    } else if (event is BoardEventUpdatePanelItemPosition) {
-      yield* _saveItemPositionToDatabase(
-          event.panelItemDatas, event.panelId, event.boardId);
-    } else if (event is BoardEventUpdatePanelItemPositionAlt) {
+    }
+    // else if (event is BoardEventUpdatePanelItemPosition) {
+    //   yield* _saveItemPositionToDatabase(
+    //       event.panelItemDatas, event.panelId, event.boardId);
+    // }
+    else if (event is BoardEventUpdatePanelItemPositionAlt) {
       yield* _saveItemPositionToDatabaseAlt(
           event.oldItemDatas, event.insertedItemDatas, event.boardId);
     } else if (event is BoardEventDeletePanelItem) {
@@ -33,6 +35,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           event.boardId, event.panelItemId, event.panelItemsToOrder);
     } else if (event is BoardEventUpdatePanelValue) {
       yield* _updatePanelValue(event.panelData);
+    } else if (event is BoardEventUpdatePanelItemValue) {
+      yield* _updatePanelItemValue(event.panelItemData, event.boardId);
     }
   }
 
@@ -173,6 +177,19 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       yield BoardStatePanelWithItems(panels);
     } catch (e) {
       print("Exceptionn in updatePanelValue $e");
+      yield BoardStateShowToast("Error occured");
+    }
+  }
+
+  Stream<BoardState> _updatePanelItemValue(
+      PanelItemData panelItemData, int boardId) async* {
+    try {
+      yield BoardStateLoading();
+      await _boardRepository.updatePanelItemValue(panelItemData);
+      var panels = await _boardRepository.getAllPanelWithItems(boardId);
+      yield BoardStatePanelWithItems(panels);
+    } catch (e) {
+      print("Exception in updatePanelItemValue $e");
       yield BoardStateShowToast("Error occured");
     }
   }

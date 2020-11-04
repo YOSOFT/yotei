@@ -20,7 +20,6 @@ class CreateBoardBloc extends Bloc<CreateBoardEvent, CreateBoardState> {
     try {
       yield Loading();
       int data = await _boardRepository.create(board, categoryName);
-      print(data);
       if (data != null && data != 0) {
         yield Success();
       } else {
