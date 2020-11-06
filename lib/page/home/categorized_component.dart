@@ -143,6 +143,7 @@ class _CategorizedComponentState extends State<CategorizedComponent>
 
   _processDataToSection() {
     _sectionList.clear();
+    _boardWithCategory.keys.toList()..sort();
     _boardWithCategory.forEach((key, value) {
       _sectionList.add(BoardSection()
         ..isExpanded = true

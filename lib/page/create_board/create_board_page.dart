@@ -109,7 +109,7 @@ class _CreateBoardPageState extends State<CreateBoardPage> {
                                   _showToast(
                                       "Title or description must not be empty");
                                 } else {
-                                  var formatter = new DateFormat('yyyy-MM-dd');
+                                  var formatter = new DateFormat('yyyy-MM-dd HH:mm:ss');
                                   String formattedDate = formatter.format(DateTime.now());
                                   DateTime dt = DateTime.parse(formattedDate);
                                   _createBoardBloc.add(Save(

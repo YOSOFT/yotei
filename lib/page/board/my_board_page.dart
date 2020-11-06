@@ -740,7 +740,7 @@ class _MyBoardPageState extends State<MyBoardPage> {
   }
 
   _refreshLastUpdated(){
-    var formatter = new DateFormat('yyyy-MM-dd');
+    var formatter = new DateFormat('yyyy-MM-dd HH:mm:ss');
     String formattedDate = formatter.format(DateTime.now());
     DateTime dt = DateTime.parse(formattedDate);
     Board board = this.widget.boardWithCategory.board.copyWith(lastUpdated: dt);
