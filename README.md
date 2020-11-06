@@ -1,16 +1,9 @@
-# laplanche
+# Yotei
+Your personal notes, target and achievements with Kanban style.  
+Built using flutter, moor, boardview, etc.
 
-A new Flutter application.
+## Demo
+[![Demo project](https://img.youtube.com/vi/TSB7Va9jxxg/0.jpg)](https://www.youtube.com/watch?v=TSB7Va9jxxg)
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Breakdown
+If you want something technical and spesific, please read at [my journal page](https://app.gitbook.com/@ydhnwb/s/blog/projects/yotei)

@@ -71,6 +71,26 @@ class BoardsDao extends DatabaseAccessor<AppDatabase> with _$BoardsDaoMixin {
         .get();
   }
 
-  Future updateboard(Board b) => update(boards).replace(b);
+  Future updateboard(Board b) {
+    var result = (update(boards)..where((t) => t.id.equals(b.id))).write(
+      BoardsCompanion(
+        name: Value(b.name),
+        description: Value(b.description),
+        category: Value(b.category)
+      ),
+    );
+    return result;
+  }
+
+  Future updateboardDate(Board b) {
+    var result = (update(boards)..where((t) => t.id.equals(b.id))).write(
+      BoardsCompanion(
+        lastUpdated: Value(b.lastUpdated)
+      ),
+    );
+    return result;
+    // update(boards).replace(b)
+  }
+
   Future deleteBoard(Board b) => delete(boards).delete(b);
 }

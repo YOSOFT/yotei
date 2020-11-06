@@ -113,18 +113,16 @@ class BoardRepository {
 
   Future<int> updateBoardValue(BoardWithCategory bwc) async {
     var oldCategory = bwc.boardCategoryData;
-    int categoryId =
-        await _appDb.categoryDao.insertCategory(bwc.boardCategoryData.name);
+    int categoryId = await _appDb.categoryDao.insertCategory(bwc.boardCategoryData.name);
+    var result = await _appDb.boardsDao.updateboard(bwc.board.copyWith(category: categoryId));
     if (categoryId != oldCategory.id) {
       await deleteCategoryIfNotUsed(oldCategory.id);
     }
-    var result = await _appDb.boardsDao
-        .updateboard(bwc.board.copyWith(category: categoryId));
-    return result ? categoryId : -1;
+    return result == 1 ? categoryId : -1;
   }
 
   Future<int> updateLastUpdated(Board b) async {
-    return await _appDb.boardsDao.updateboard(b) ? 1 : 0;
+    return await _appDb.boardsDao.updateboardDate(b) == 1? 1 : 0;
   }
 
   Future<int> destroyBoard(BoardWithCategory bwc) async {

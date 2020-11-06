@@ -35,6 +35,9 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
       yield MainPageLoading();
       final List<BoardWithCategory> _boards =
           await _boardRepository.getAllBoardWithCategory();
+      _boards.forEach((element) {
+        print(element.board.name);
+      });
       var _filtered = _boards.fold<Map<String, List<BoardWithCategory>>>({},
           (boardWithCategoryMap, currentBoardWithCategory) {
         if (boardWithCategoryMap[

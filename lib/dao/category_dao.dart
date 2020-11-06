@@ -21,8 +21,8 @@ class CategoryDao extends DatabaseAccessor<AppDatabase>
     }
     BoardCategoryData category =
         BoardCategoryData(id: null, name: categoryName);
-    var s = into(boardCategory).insert(category);
-    return s;
+    await into(boardCategory).insert(category);
+    return insertCategory(categoryName);
   }
 
   Future<BoardCategoryData> findByIdName(String name) {
