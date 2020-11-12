@@ -22,7 +22,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     } else if (event is BoardEventSavePanelPosition) {
       yield* _savePanelPositionToDatabase(event.panelDatas, event.boardId);
     } else if (event is BoardEventDeletePanel) {
-      yield* _deletePanel(event.panelId, event.panelDatas);
+      yield* _deletePanel(event.boardId, event.panelId, event.panelDatas);
     } else if (event is BoardEventUpdatePanelItemPositionAlt) {
       yield* _saveItemPositionToDatabaseAlt(
           event.oldItemDatas, event.insertedItemDatas, event.boardId);
@@ -65,7 +65,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       panelData = panelData.copyWith(order: lastIndex);
       await _boardRepository.createPanel(panelData);
       yield BoardStateRefresh();
-      yield BoardStateShowToast("Sukses insert");
+      yield BoardStateShowToast("Success");
     } catch (e) {
       print("Something went wrong $e");
       yield BoardStateShowToast("There is something wrong..");
@@ -131,10 +131,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   Stream<BoardState> _deletePanel(
+      int boardId,
       int panelId, List<PanelData> panelDatas) async* {
     try {
       yield BoardStateLoading();
-      int boardId = panelDatas[0].boardId;
       await _boardRepository.deletePanel(panelId);
       await _boardRepository.updatePanelPosition(panelDatas);
       var panels = await _boardRepository.getAllPanelWithItems(boardId);
@@ -188,7 +188,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   Stream<BoardState> _getSingleBoardWithCategory(
       BoardWithCategory boardWithCategory) async* {
     try {
-      print(boardWithCategory);
       yield BoardStateLoading();
       var bwc = await _boardRepository
           .getSingleBoardWithCategory(boardWithCategory.board);

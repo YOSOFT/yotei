@@ -101,7 +101,6 @@ class _MyBoardPageState extends State<MyBoardPage> {
               panelWithItemsFromDb.addAll(state.panelWithItems);
               _moveFromDbToListAlt();
             } else if (state is BoardStateSingleBoardWithCategory) {
-              print(state.bwc.board.toJsonString());
               setState(() {
                 currentBoardWithCategory = state.bwc;
               });
@@ -611,7 +610,6 @@ class _MyBoardPageState extends State<MyBoardPage> {
   }
 
   _deletePanelItem(PanelItemData panelItemData) {
-    print(panelItemData.name);
     List<PanelItemData> panelItemsToOrder = headers
         .singleWhere((element) => element.panelData.id == panelItemData.panelId)
         .panelItemsAlt;
@@ -628,7 +626,7 @@ class _MyBoardPageState extends State<MyBoardPage> {
         headers.singleWhere((element) => element.panelData.id == panelId);
     headers.remove(selectedPanel);
     _boardBloc.add(BoardEventDeletePanel(
-        panelId, headers.map((e) => e.panelData).toList()));
+      this.widget.boardWithCategory.board.id, panelId, headers.map((e) => e.panelData).toList()));
     _refreshLastUpdated();
   }
 
@@ -677,7 +675,7 @@ class _MyBoardPageState extends State<MyBoardPage> {
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('Would you like to delete this panel?'),
+                Text('Would you like to delete this panel?')
               ],
             ),
           ),
@@ -744,7 +742,6 @@ class _MyBoardPageState extends State<MyBoardPage> {
     String formattedDate = formatter.format(DateTime.now());
     DateTime dt = DateTime.parse(formattedDate);
     Board board = this.widget.boardWithCategory.board.copyWith(lastUpdated: dt);
-    print(dt);
     _boardBloc.add(BoardEventUpdateBoardLastUpdated(board));
   }
 

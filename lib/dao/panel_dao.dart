@@ -41,9 +41,12 @@ class PanelDao extends DatabaseAccessor<AppDatabase> with _$PanelDaoMixin {
   }
 
   Future deletePanel(int panelId) {
-    (delete(panel)..where((tbl) => tbl.id.equals(panelId))).go();
-    return (delete(panelItem)..where((tbl) => tbl.panelId.equals(panelId)))
+    var s = (delete(panelItem)..where((tbl) => tbl.panelId.equals(panelId)))
         .go();
+    print("super");
+    print(s);
+    return (delete(panel)..where((tbl) => tbl.id.equals(panelId))).go();
+     
   }
 
   Future deletePanelItem(int panelItemId) {

@@ -72,6 +72,23 @@ class _AboutPageState extends State<AboutPage> {
                   ),
                 ),
               ),
+            ),
+            Card(
+              child: InkWell(
+                onTap: () => print(""),
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text("Fanny Naditya Putra", style: TextStyle(fontWeight: FontWeight.bold)),
+                      Container(
+                        margin: EdgeInsets.only(top: 8),
+                        child: Text("Thanks for Fanny Naditya Putra for helped me generated the icon design."))
+                    ],
+                  ),
+                ),
+              ),
             )
           ],
         ),
