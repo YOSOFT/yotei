@@ -10,3 +10,5 @@ Built using flutter, moor, boardview, etc.
 
 ## Breakdown
 If you want something technical and spesific, please read at [my journal page](https://app.gitbook.com/@ydhnwb/s/blog/projects/yotei)
+
+## License: Apache 2.0 License
