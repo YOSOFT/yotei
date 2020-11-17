@@ -1,6 +1,7 @@
-# Yotei
+# Yotei (よてい)
 Your personal notes, target and achievements with Kanban style.  
-Built using flutter, moor, boardview, etc.
+Built using flutter, moor, boardview, etc.  
+(ようていはかんばんスタイルのあなたの個人的なメモです) 
 
 ## Get this app on Playstore
 [Download the app here](https://play.google.com/store/apps/details?id=com.ydhnwb.laplanche)
